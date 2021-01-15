@@ -1,0 +1,14 @@
+[package]
+name = "test"
+version = "0.0.1"
+authors = [ "zo-el", "joelulahanna@gmail.com" ]
+edition = "2018"
+
+[lib]
+name = "test"
+crate-type = [ "cdylib", "rlib" ]
+
+[dependencies]
+hdk3 = { git = "https://github.com/holochain/holochain", rev = "5533eb485fb818f796f5af0c74087638ec5b63a8", package = "hdk3" }
+serde = "1.0.104"
+thiserror = "1.0.22"
