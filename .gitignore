@@ -1,4 +1,5 @@
 target/
 .cargo/
-test.dna.gz
+*.dna
+*.happ
 Cargo.lock
