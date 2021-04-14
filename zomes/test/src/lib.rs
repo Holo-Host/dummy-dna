@@ -16,6 +16,9 @@ fn target() -> ExternResult<EntryHash> {
     path("b")
 }
 
+#[derive(Serialize, Deserialize, SerializedBytes, Debug)]
+struct JoiningCode(String);
+
 fn validate_joining_code(element: Element) -> ExternResult<ValidateCallbackResult> {
     match element.signed_header().header() {
         Header::AgentValidationPkg(pkg) => {
@@ -23,7 +26,7 @@ fn validate_joining_code(element: Element) -> ExternResult<ValidateCallbackResul
                 Some(mem_proof) => {
                     match JoiningCode::try_from(mem_proof.clone()) {
                         Ok(m) => {
-                            if m.code == "Failing Joining Code" {
+                            if m.0 == "Failing Joining Code" {
                                 return Ok(ValidateCallbackResult::Invalid("Joining code invalid: passed failing string".to_string()))
                             } else {
                                 return Ok(ValidateCallbackResult::Valid)
@@ -93,11 +96,6 @@ pub struct LoopBack {
 fn signal_loopback(value: LoopBack) -> ExternResult<()> {
     emit_signal(&value)?;
     Ok(())
-}
-
-#[derive(Serialize, Deserialize, SerializedBytes, Debug)]
-struct JoiningCode {
-    pub code: String
 }
 
 #[hdk_extern]
