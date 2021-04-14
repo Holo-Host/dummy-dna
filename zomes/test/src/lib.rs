@@ -17,6 +17,32 @@ fn target() -> ExternResult<EntryHash> {
 }
 
 #[derive(Serialize, Deserialize, SerializedBytes, Debug)]
+struct JoiningCode(String);
+
+fn validate_joining_code(element: Element) -> ExternResult<ValidateCallbackResult> {
+    match element.signed_header().header() {
+        Header::AgentValidationPkg(pkg) => {
+            match &pkg.membrane_proof {
+                Some(mem_proof) => {
+                    match JoiningCode::try_from(mem_proof.clone()) {
+                        Ok(m) => {
+                            if m.0 == "Failing Joining Code" {
+                                return Ok(ValidateCallbackResult::Invalid("Joining code invalid: passed failing string".to_string()))
+                            } else {
+                                return Ok(ValidateCallbackResult::Valid)
+                            }
+                        }
+                        Err(e) => return Ok(ValidateCallbackResult::Invalid(format!("Joining code invalid: unable to deserialize into element ({:?})", e)))
+                    };
+                }
+                None => Ok(ValidateCallbackResult::Invalid("No membrane proof found".to_string()))
+            }
+        },
+        _ => Ok(ValidateCallbackResult::Invalid("No Agent Validation Pkg found".to_string()))
+    }
+}
+
+#[derive(Serialize, Deserialize, SerializedBytes, Debug)]
 pub struct TestObj {
     value: String,
 }
@@ -70,4 +96,28 @@ pub struct LoopBack {
 fn signal_loopback(value: LoopBack) -> ExternResult<()> {
     emit_signal(&value)?;
     Ok(())
+}
+
+#[hdk_extern]
+fn validate(data: ValidateData) -> ExternResult<ValidateCallbackResult> {
+    let element = data.element.clone();
+    let entry = element.into_inner().1;
+    let entry = match entry {
+            ElementEntry::Present(e) => e,
+            _ => return Ok(ValidateCallbackResult::Valid),
+    };
+    if let Entry::Agent(_) = entry {
+        match data.element.header().prev_header() {
+            Some(header) => {
+                match get(header.clone(), GetOptions::default())? {
+                    Some(element_pkg) => {
+                        return validate_joining_code(element_pkg)
+                    },
+                    None => return Ok(ValidateCallbackResult::UnresolvedDependencies(vec![(header.clone()).into()]))
+                }
+            },
+            None => return Ok(ValidateCallbackResult::Invalid("Impossible state".to_string()))
+        }
+    }
+    Ok(ValidateCallbackResult::Valid)
 }
