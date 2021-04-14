@@ -3,71 +3,123 @@ use hdk::prelude::*;
 entry_defs![Path::entry_def()];
 
 fn path(s: &str) -> ExternResult<EntryHash> {
-    let path = Path::from(s);
-    path.ensure()?;
-    Ok(path.hash()?)
+  let path = Path::from(s);
+  path.ensure()?;
+  Ok(path.hash()?)
 }
 
 fn base() -> ExternResult<EntryHash> {
-    path("a")
+  path("a")
 }
 
 fn target() -> ExternResult<EntryHash> {
-    path("b")
+  path("b")
+}
+
+fn validate_joining_code(element: Element) -> ExternResult<ValidateCallbackResult> {
+  match element.signed_header().header() {
+    Header::AgentValidationPkg(pkg) => {
+      match &pkg.membrane_proof {
+        Some(mem_proof) => {
+          match JoiningCode::try_from(mem_proof.clone()) {
+            Ok(m) => {
+              if m.code == "Failing Joining Code" {
+                return Ok(ValidateCallbackResult::Invalid("Joining code invalid: passed failing string".to_string()))
+              } else {
+                return Ok(ValidateCallbackResult::Valid)
+              }
+            }
+            Err(e) => return Ok(ValidateCallbackResult::Invalid(format!("Joining code invalid: unable to deserialize into element ({:?})", e)))
+          };
+        }
+        None => Ok(ValidateCallbackResult::Invalid("No membrane proof found".to_string()))
+      }
+    },
+    _ => Ok(ValidateCallbackResult::Invalid("No Agent Validation Pkg found".to_string()))
+  }
 }
 
 #[derive(Serialize, Deserialize, SerializedBytes, Debug)]
 pub struct TestObj {
-    value: String,
+  value: String,
 }
 
 #[hdk_extern]
 fn returns_obj(_: ()) -> ExternResult<TestObj> {
-    Ok(TestObj {
-        value: "This is the returned value".to_string(),
-    })
+  Ok(TestObj {
+    value: "This is the returned value".to_string(),
+  })
 }
 
 #[hdk_extern]
 fn pass_obj(t: TestObj) -> ExternResult<TestObj> {
-    Ok(t)
+  Ok(t)
 }
 
 #[hdk_extern]
 fn return_failure(_: TestObj) -> ExternResult<()> {
-    Err(WasmError::Guest("returned error".to_string()))
+  Err(WasmError::Guest("returned error".to_string()))
 }
 
 #[hdk_extern]
 fn create_link(_: ()) -> ExternResult<HeaderHash> {
-    Ok(hdk::prelude::create_link(base()?, target()?, ())?)
+  Ok(hdk::prelude::create_link(base()?, target()?, ())?)
 }
 
 #[hdk_extern]
 fn delete_link(input: HeaderHash) -> ExternResult<HeaderHash> {
-    Ok(hdk::prelude::delete_link(input)?)
+  Ok(hdk::prelude::delete_link(input)?)
 }
 
 #[hdk_extern]
 fn get_links(_: ()) -> ExternResult<Links> {
-    Ok(hdk::prelude::get_links(base()?, None)?)
+  Ok(hdk::prelude::get_links(base()?, None)?)
 }
 
 #[hdk_extern]
 fn delete_all_links(_: ()) -> ExternResult<()> {
-    for link in hdk::prelude::get_links(base()?, None)?.into_inner() {
-        hdk::prelude::delete_link(link.create_link_hash)?;
-    }
-    Ok(())
+  for link in hdk::prelude::get_links(base()?, None)?.into_inner() {
+    hdk::prelude::delete_link(link.create_link_hash)?;
+  }
+  Ok(())
 }
 
 #[derive(Serialize, Deserialize, SerializedBytes, Debug)]
 pub struct LoopBack {
-    value: String,
+  value: String,
 }
 
 #[hdk_extern]
 fn signal_loopback(value: LoopBack) -> ExternResult<()> {
-    emit_signal(&value)?;
-    Ok(())
+  emit_signal(&value)?;
+  Ok(())
+}
+
+#[derive(Serialize, Deserialize, SerializedBytes, Debug)]
+struct JoiningCode {
+  pub code: String
+}
+
+#[hdk_extern]
+fn validate(data: ValidateData) -> ExternResult<ValidateCallbackResult> {
+  let element = data.element.clone();
+  let entry = element.into_inner().1;
+  let entry = match entry {
+      ElementEntry::Present(e) => e,
+      _ => return Ok(ValidateCallbackResult::Valid),
+  };
+  if let Entry::Agent(_) = entry {
+    match data.element.header().prev_header() {
+      Some(header) => {
+        match get(header.clone(), GetOptions::default())? {
+            Some(element_pkg) => {
+              return validate_joining_code(element_pkg)
+            },
+            None => return Ok(ValidateCallbackResult::UnresolvedDependencies(vec![(header.clone()).into()]))
+        }
+      },
+      None => return Ok(ValidateCallbackResult::Invalid("Impossible state".to_string()))
+    }
+  }
+  Ok(ValidateCallbackResult::Valid)
 }
