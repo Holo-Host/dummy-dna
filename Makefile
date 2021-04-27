@@ -95,7 +95,8 @@ update-hc-cargoSha:
 
 github-release-%:
 	@echo "TODO";\
-	echo "Creating github-release for version $*"
+	echo "Creating github-release for version $*";\
+	sh ./gh-release.sh $* "holochain rev: `$(HC_REV)`"
 
 release-%:
 	echo '⚙️  Editing necessary files required for update...'
@@ -112,7 +113,7 @@ release-%:
 	git commit -m v$*
 	git push origin HEAD
 	echo '⚙️  Making new release...'
-	make github-release-$*
+	make HC_REV=$(HC_REV) github-release-$*
 	echo '🚀  Successful release servicelogger '$*
 
 
