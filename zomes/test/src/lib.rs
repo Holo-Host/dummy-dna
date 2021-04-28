@@ -19,26 +19,26 @@ fn target() -> ExternResult<EntryHash> {
 #[derive(Serialize, Deserialize, SerializedBytes, Debug)]
 struct JoiningCode(String);
 
-fn validate_joining_code(element: Element) -> ExternResult<ValidateCallbackResult> {
-    match element.signed_header().header() {
-        Header::AgentValidationPkg(pkg) => {
-            match &pkg.membrane_proof {
-                Some(mem_proof) => {
-                    match JoiningCode::try_from(mem_proof.clone()) {
-                        Ok(m) => {
-                            if m.0 == "Failing Joining Code" {
-                                return Ok(ValidateCallbackResult::Invalid("Joining code invalid: passed failing string".to_string()))
-                            } else {
-                                return Ok(ValidateCallbackResult::Valid)
-                            }
-                        }
-                        Err(e) => return Ok(ValidateCallbackResult::Invalid(format!("Joining code invalid: unable to deserialize into element ({:?})", e)))
-                    };
+#[hdk_extern]
+fn genesis_self_check(data: GenesisSelfCheckData) -> ExternResult<ValidateCallbackResult> {
+    validate_joining_code(data.membrane_proof)
+}
+
+fn validate_joining_code(membrane_proof: Option<MembraneProof>) -> ExternResult<ValidateCallbackResult> {
+    match membrane_proof {
+        Some(mem_proof) => {
+            match JoiningCode::try_from(mem_proof.clone()) {
+                Ok(m) => {
+                    if m.0 == "Failing Joining Code" {
+                        return Ok(ValidateCallbackResult::Invalid("Joining code invalid: passed failing string".to_string()))
+                    } else {
+                        return Ok(ValidateCallbackResult::Valid)
+                    }
                 }
-                None => Ok(ValidateCallbackResult::Invalid("No membrane proof found".to_string()))
-            }
-        },
-        _ => Ok(ValidateCallbackResult::Invalid("No Agent Validation Pkg found".to_string()))
+                Err(e) => return Ok(ValidateCallbackResult::Invalid(format!("Joining code invalid: unable to deserialize into element ({:?})", e)))
+            };
+        }
+        None => Ok(ValidateCallbackResult::Invalid("No membrane proof found".to_string()))
     }
 }
 
@@ -111,7 +111,12 @@ fn validate(data: ValidateData) -> ExternResult<ValidateCallbackResult> {
             Some(header) => {
                 match get(header.clone(), GetOptions::default())? {
                     Some(element_pkg) => {
-                        return validate_joining_code(element_pkg)
+                        match element_pkg.signed_header().header() {
+                            Header::AgentValidationPkg(pkg) => {
+                                return validate_joining_code(pkg.membrane_proof.clone())
+                            },
+                            _ => return Ok(ValidateCallbackResult::Invalid("No Agent Validation Pkg found".to_string()))
+                        }
                     },
                     None => return Ok(ValidateCallbackResult::UnresolvedDependencies(vec![(header.clone()).into()]))
                 }
