@@ -18,6 +18,17 @@ all: nix-test
 nix-%:
 	nix-shell --pure --run "make $*"
 
+.PHONY: test test-dna test-dna-debug
+test: test-dna
+
+test-dna:	$(DNA) FORCE
+	@echo "Starting Scenario tests in $$(pwd)..."; \
+		cd tests && ( [ -d  node_modules ] || npm install ) && npm test
+
+test-dna-debug:
+	@echo "Starting Scenario tests in $$(pwd)..."; \
+	    cd tests && ( [ -d  node_modules ] || npm install ) && npm run test-debug
+
 # Internal targets; require a Nix environment in order to be deterministic.
 # - Uses the version of `dna-util`, `holochain` on the system PATH.
 # - Normally called from within a Nix environment, eg. run `nix-shell`
