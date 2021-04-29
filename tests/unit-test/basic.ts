@@ -20,8 +20,8 @@ module.exports = async (orchestrator) => {
         type: 'error',
         data: {
           type: 'internal_error',
-          data: 'Conductor returned an error while using a ConductorApi: GenesisFailed { errors: [ConductorApiError(WorkflowError(GenesisFailure("Joining code invalid: unable to deserialize into element (Deserialize(\\"invalid type: map, expected a string\\"))")))] }'
-        }
+          data: 'Conductor returned an error while using a ConductorApi: GenesisFailed { errors: [ConductorApiError(WorkflowError(GenesisFailure("Joining code invalid: passed failing string")))] }'
+        }      
       });
     }
     t.ok(appInstallFailed)
