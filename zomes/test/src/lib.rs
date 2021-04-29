@@ -25,13 +25,16 @@ fn genesis_self_check(data: GenesisSelfCheckData) -> ExternResult<ValidateCallba
 }
 
 fn validate_joining_code(membrane_proof: Option<MembraneProof>) -> ExternResult<ValidateCallbackResult> {
+    debug!("Running Validation...");
     match membrane_proof {
         Some(mem_proof) => {
             match JoiningCode::try_from(mem_proof.clone()) {
                 Ok(m) => {
                     if m.0 == "Failing Joining Code" {
+                        debug!("Invalidation successful...");
                         return Ok(ValidateCallbackResult::Invalid("Joining code invalid: passed failing string".to_string()))
                     } else {
+                        debug!("Validation successful...");
                         return Ok(ValidateCallbackResult::Valid)
                     }
                 }

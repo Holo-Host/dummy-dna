@@ -20,7 +20,7 @@ module.exports = async (orchestrator) => {
         type: 'error',
         data: {
           type: 'internal_error',
-          data: 'Conductor returned an error while using a ConductorApi: GenesisFailed { errors: [ConductorApiError(WorkflowError(GenesisFailure("Joining code invalid: unable to deserialize into element (Deserialize(\\"invalid type: map, expected a string\\"))")))] }'
+          data: 'Conductor returned an error while using a ConductorApi: GenesisFailed { errors: [ConductorApiError(WorkflowError(GenesisFailure("Joining code invalid: passed failing string")))] }'
         }
       });
     }
@@ -40,7 +40,7 @@ module.exports = async (orchestrator) => {
   //     console.log("Error",  e)
   //     t.fail()
   //   }
-    
+
   //   const [alice_test_happ] = installResult
   //   const [alice] = alice_test_happ.cells
 

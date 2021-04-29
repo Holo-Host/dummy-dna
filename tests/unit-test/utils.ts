@@ -21,9 +21,8 @@ export const installation2agent: InstallAgentsHapps = [
 ]
 
 
-const SUCCESSFUL_JOINING_CODE = Buffer.from((msgpack.encode('joining code') as Buffer).toString('base64'), 'base64')
-// export const INVALID_JOINING_CODE = Buffer.from((msgpack.encode('failing joining code') as Buffer).toString('base64'), 'base64')
-export const INVALID_JOINING_CODE = Buffer.from("3gACrXNpZ25lZF9oZWFkZXLeAAKmaGVhZGVy3gA", 'base64')
+const SUCCESSFUL_JOINING_CODE = msgpack.encode('joining code')
+export const INVALID_JOINING_CODE = msgpack.encode('Failing Joining Code')
 
 export const installAgents = async (conductor, agentNames, memProof?) => {
   const dnas = [
@@ -47,4 +46,3 @@ export const installAgents = async (conductor, agentNames, memProof?) => {
   ))
   return agents
 }
-
