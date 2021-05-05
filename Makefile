@@ -94,7 +94,6 @@ update-hc-cargoSha:
   fi
 
 github-release-%:
-	@echo "TODO";\
 	echo "Creating github-release for version $*";\
 	sh ./gh-release.sh $* "holochain rev: `$(HC_REV)`"
 
