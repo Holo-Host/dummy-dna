@@ -21,7 +21,7 @@ module.exports = async (orchestrator) => {
         data: {
           type: 'internal_error',
           data: 'Conductor returned an error while using a ConductorApi: GenesisFailed { errors: [ConductorApiError(WorkflowError(GenesisFailure("Joining code invalid: passed failing string")))] }'
-        }      
+        }
       });
     }  
     t.ok(appInstallFailed)

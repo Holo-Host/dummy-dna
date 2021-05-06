@@ -46,4 +46,3 @@ export const installAgents = async (conductor, agentNames, memProof?) => {
   ))
   return agents
 }
-
