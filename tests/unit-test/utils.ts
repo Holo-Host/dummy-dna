@@ -20,7 +20,6 @@ export const installation2agent: InstallAgentsHapps = [
   [[testDna]],
 ]
 
-
 const SUCCESSFUL_JOINING_CODE = msgpack.encode('joining code')
 export const INVALID_JOINING_CODE = msgpack.encode('Failing Joining Code')
 
