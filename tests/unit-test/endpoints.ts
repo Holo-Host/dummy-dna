@@ -44,7 +44,7 @@ module.exports = async (orchestrator) => {
       t.fail()
     }
 
-    // test fn: pass_obj()
+    // test fn: return_failure()
     try {
       response = await alice.call('test', 'return_failure', null);
     } catch(e) {
