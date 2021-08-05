@@ -24,7 +24,9 @@ fn genesis_self_check(data: GenesisSelfCheckData) -> ExternResult<ValidateCallba
     validate_joining_code(data.membrane_proof)
 }
 
-fn validate_joining_code(membrane_proof: Option<MembraneProof>) -> ExternResult<ValidateCallbackResult> {
+fn validate_joining_code(
+    membrane_proof: Option<MembraneProof>,
+) -> ExternResult<ValidateCallbackResult> {
     debug!("Running Validation...");
     match membrane_proof {
         Some(mem_proof) => {
@@ -32,16 +34,25 @@ fn validate_joining_code(membrane_proof: Option<MembraneProof>) -> ExternResult<
                 Ok(m) => {
                     if m.0 == "Failing Joining Code" {
                         debug!("Invalidation successful...");
-                        return Ok(ValidateCallbackResult::Invalid("Joining code invalid: passed failing string".to_string()))
+                        return Ok(ValidateCallbackResult::Invalid(
+                            "Joining code invalid: passed failing string".to_string(),
+                        ));
                     } else {
                         debug!("Validation successful...");
-                        return Ok(ValidateCallbackResult::Valid)
+                        return Ok(ValidateCallbackResult::Valid);
                     }
                 }
-                Err(e) => return Ok(ValidateCallbackResult::Invalid(format!("Joining code invalid: unable to deserialize into element ({:?})", e)))
+                Err(e) => {
+                    return Ok(ValidateCallbackResult::Invalid(format!(
+                        "Joining code invalid: unable to deserialize into element ({:?})",
+                        e
+                    )))
+                }
             };
         }
-        None => Ok(ValidateCallbackResult::Invalid("No membrane proof found".to_string()))
+        None => Ok(ValidateCallbackResult::Invalid(
+            "No membrane proof found".to_string(),
+        )),
     }
 }
 
@@ -73,8 +84,26 @@ fn create_link(_: ()) -> ExternResult<HeaderHash> {
 }
 
 #[hdk_extern]
+fn create_link_to_agent(agent: AgentPubKey) -> ExternResult<HeaderHash> {
+    Ok(hdk::prelude::create_link(agent.into(), target()?, ())?)
+}
+
+#[hdk_extern]
 fn delete_link(input: HeaderHash) -> ExternResult<HeaderHash> {
     Ok(hdk::prelude::delete_link(input)?)
+}
+
+#[hdk_extern]
+fn get_links_from_agent(agent: AgentPubKey) -> ExternResult<Links> {
+    Ok(hdk::prelude::get_links(agent.into(), None)?)
+}
+
+#[hdk_extern]
+fn get_links_from_me(_: ()) -> ExternResult<Links> {
+    Ok(hdk::prelude::get_links(
+        agent_info()?.agent_initial_pubkey.into(),
+        None,
+    )?)
 }
 
 #[hdk_extern]
@@ -106,25 +135,33 @@ fn validate(data: ValidateData) -> ExternResult<ValidateCallbackResult> {
     let element = data.element.clone();
     let entry = element.into_inner().1;
     let entry = match entry {
-            ElementEntry::Present(e) => e,
-            _ => return Ok(ValidateCallbackResult::Valid),
+        ElementEntry::Present(e) => e,
+        _ => return Ok(ValidateCallbackResult::Valid),
     };
     if let Entry::Agent(_) = entry {
         match data.element.header().prev_header() {
-            Some(header) => {
-                match get(header.clone(), GetOptions::default())? {
-                    Some(element_pkg) => {
-                        match element_pkg.signed_header().header() {
-                            Header::AgentValidationPkg(pkg) => {
-                                return validate_joining_code(pkg.membrane_proof.clone())
-                            },
-                            _ => return Ok(ValidateCallbackResult::Invalid("No Agent Validation Pkg found".to_string()))
-                        }
-                    },
-                    None => return Ok(ValidateCallbackResult::UnresolvedDependencies(vec![(header.clone()).into()]))
+            Some(header) => match get(header.clone(), GetOptions::default())? {
+                Some(element_pkg) => match element_pkg.signed_header().header() {
+                    Header::AgentValidationPkg(pkg) => {
+                        return validate_joining_code(pkg.membrane_proof.clone())
+                    }
+                    _ => {
+                        return Ok(ValidateCallbackResult::Invalid(
+                            "No Agent Validation Pkg found".to_string(),
+                        ))
+                    }
+                },
+                None => {
+                    return Ok(ValidateCallbackResult::UnresolvedDependencies(vec![
+                        (header.clone()).into(),
+                    ]))
                 }
             },
-            None => return Ok(ValidateCallbackResult::Invalid("Impossible state".to_string()))
+            None => {
+                return Ok(ValidateCallbackResult::Invalid(
+                    "Impossible state".to_string(),
+                ))
+            }
         }
     }
     Ok(ValidateCallbackResult::Valid)
