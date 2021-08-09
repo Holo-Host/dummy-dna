@@ -1,6 +1,6 @@
 import path = require('path')
 import * as _ from 'lodash'
-import { localConductorConfig, installAgents, delay } from './utils'
+import { localConductorConfig, installAgents, delay, consistency } from './utils'
 
 async function run(t, fn) {
     try {
@@ -22,16 +22,17 @@ module.exports = async (orchestrator) => {
     // test admin api endpoints: installation and activation
     let installResult
     try{
-      installResult = await installAgents(conductor,  ["jack", 'liza'])
+      installResult = await installAgents(conductor,  ["jack", 'liza', 'sam'])
       t.ok(installResult)
     } catch(e) {
       console.log("Error",  e)
       t.fail()
     }
     
-    const [jack_test_happ, liza_test_happ] = installResult
+    const [jack_test_happ, liza_test_happ, sam_test_happ] = installResult
     const [jack] = jack_test_happ.cells
     const [liza] = liza_test_happ.cells
+    const [sam] = sam_test_happ.cells
 
     let head = await run(t, () => jack.call('test', 'create_link_to_agent', liza_test_happ.agent))
     await delay(1000)
@@ -41,11 +42,25 @@ module.exports = async (orchestrator) => {
     r = await run(t, () => jack.call('test', 'get_links_from_agent', liza_test_happ.agent))
     console.log("Before Delete: jack see the link he added to liza", r);
     t.equal(r.length, 1)
+
+    r = await run(t, () => sam.call('test', 'get_links_from_agent', liza_test_happ.agent))
+    console.log("After Delete: sam should see no link from liza", r);
+    t.equal(r.length, 1)
+
     await run(t, () => liza.call('test', 'delete_link', head))
     await delay(1000)
+
     r = await run(t, () => liza.call('test', 'get_links_from_me', null))
     console.log("After Delete: liza should see no link", r);
     t.equal(r.length, 0)
+
+    r = await run(t, () => sam.call('test', 'get_links_from_agent', liza_test_happ.agent))
+    console.log("After Delete: sam should see no link from liza", r);
+    t.equal(r.length, 0)
+
+
+    await consistency([liza, jack])
+
     await delay(15000)
     r = await run(t, () => jack.call('test', 'get_links_from_agent', liza_test_happ.agent))
     console.log("After Delete: jack should see no link from liza", r);
