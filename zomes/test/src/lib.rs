@@ -24,10 +24,18 @@ fn genesis_self_check(data: GenesisSelfCheckData) -> ExternResult<ValidateCallba
     validate_joining_code(data.membrane_proof)
 }
 
+pub fn is_read_only_proof(mem_proof: &MembraneProof) -> bool {
+    let b = mem_proof.bytes();
+    b == &[0]
+}
+
 fn validate_joining_code(membrane_proof: Option<MembraneProof>) -> ExternResult<ValidateCallbackResult> {
     debug!("Running Validation...");
     match membrane_proof {
         Some(mem_proof) => {
+            if is_read_only_proof(&mem_proof) {
+                return Ok(ValidateCallbackResult::Valid);
+            };
             match JoiningCode::try_from(mem_proof.clone()) {
                 Ok(m) => {
                     if m.0 == "Failing Joining Code" {
