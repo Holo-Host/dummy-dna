@@ -112,10 +112,7 @@ fn validate(data: ValidateData) -> ExternResult<ValidateCallbackResult> {
     if let Entry::Agent(_) = entry {
         match data.element.header().prev_header() {
             Some(header) => {
-                debug!("CALLING MUST_GET");
-                let element = must_get_valid_element(header.clone());
-                debug!("ELEMENT {:?}", element);
-                match element?.signed_header().header() {
+                match must_get_valid_element(header.clone())?.signed_header().header() {
                     Header::AgentValidationPkg(pkg) => {
                         return validate_joining_code(pkg.membrane_proof.clone())
                     },
