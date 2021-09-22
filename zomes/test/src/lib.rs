@@ -112,19 +112,18 @@ fn validate(data: ValidateData) -> ExternResult<ValidateCallbackResult> {
     if let Entry::Agent(_) = entry {
         match data.element.header().prev_header() {
             Some(header) => {
-                match get(header.clone(), GetOptions::default())? {
-                    Some(element_pkg) => {
-                        match element_pkg.signed_header().header() {
-                            Header::AgentValidationPkg(pkg) => {
-                                return validate_joining_code(pkg.membrane_proof.clone())
-                            },
-                            _ => return Ok(ValidateCallbackResult::Invalid("No Agent Validation Pkg found".to_string()))
-                        }
+                debug!("CALLING MUST_GET");
+                let element = must_get_valid_element(header.clone());
+                debug!("ELEMENT {:?}", element);
+                match element?.signed_header().header() {
+                    Header::AgentValidationPkg(pkg) => {
+                        return validate_joining_code(pkg.membrane_proof.clone())
                     },
-                    None => return Ok(ValidateCallbackResult::UnresolvedDependencies(vec![(header.clone()).into()]))
+                    _ => return Ok(ValidateCallbackResult::Invalid("No Agent Validation Pkg found".to_string()))
                 }
             },
-            None => return Ok(ValidateCallbackResult::Invalid("Impossible state".to_string()))
+            None => {
+                return Ok(ValidateCallbackResult::Invalid("Impossible state".to_string()))}
         }
     }
     Ok(ValidateCallbackResult::Valid)

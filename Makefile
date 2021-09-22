@@ -73,7 +73,7 @@ update-hc-sha:
 	@if [ $(HC_REV) ]; then\
 		echo "⚙️  Updating dummy-dna using holochain rev: $(HC_REV)";\
 		echo "✔  Updating hdk rev in Cargo.toml...";\
-		sed -i -e 's/^hdk = .*/hdk = {git ="https:\/\/github.com\/holochain\/holochain", rev = "$(HC_REV)", package = "hdk"}/' Cargo.toml;\
+		sed -i -e 's/^hdk = .*/hdk = {git ="https:\/\/github.com\/holochain\/holochain", rev = "$(HC_REV)", package = "hdk"}/' zomes/test/Cargo.toml;\
 		echo "✔  Replacing rev...";\
 		sed -i -e 's/^     rev = .*/     rev = "$(HC_REV)";/' default.nix;\
 		echo "✔  Replacing sha256...";\
