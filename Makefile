@@ -75,9 +75,9 @@ update-hc-sha:
 		echo "✔  Updating hdk rev in Cargo.toml...";\
 		sed -i -e 's/^hdk = .*/hdk = {git ="https:\/\/github.com\/holochain\/holochain", rev = "$(HC_REV)", package = "hdk"}/' zomes/test/Cargo.toml;\
 		echo "✔  Replacing rev...";\
-		sed -i -e 's/^     rev = .*/     rev = "$(HC_REV)";/' default.nix;\
+		sed -i -e 's/^      rev = .*/      rev = "$(HC_REV)";/' default.nix;\
 		echo "✔  Replacing sha256...";\
-		sed -i -e 's/^     sha256 = .*/     sha256 = "$(shell nix-prefetch-url --unpack "https://github.com/holochain/holochain/archive/$(HC_REV).tar.gz")";/' default.nix;\
+		sed -i -e 's/^      sha256 = .*/      sha256 = "$(shell nix-prefetch-url --unpack "https://github.com/holochain/holochain/archive/$(HC_REV).tar.gz")";/' default.nix;\
 	else \
 		echo "No holochain rev provided"; \
   fi
@@ -85,7 +85,7 @@ update-hc-sha:
 update-nix-by-failure:
 	@if [ $(HC_REV) ]; then\
 		echo "➳  Corrupting cargoSha256...";\
-		sed -i -e 's/^     cargoSha256 = .*/     cargoSha256 = "000000000000000000000000000000000000000000000000000a";/' default.nix;\
+		sed -i -e 's/^      cargoSha256 = .*/      cargoSha256 = "000000000000000000000000000000000000000000000000000a";/' default.nix;\
 		echo "➳  Getting cargoSha256... This can take a while...";\
 		nix-shell &>nix.log || echo "This was ment to fail :)...";\
 	else \
@@ -99,7 +99,7 @@ update-hc-cargoSha:
 		sleep 5;\
 		echo "✔  Replacing cargoSha256...";\
 		$(eval CARGOSHA256=$(shell sh -c "grep "got" ./nix.log" | awk '{print $$2}'))\
-		sed -i -e 's/^     cargoSha256 = .*/     cargoSha256 = "$(CARGOSHA256)";/' default.nix;\
+		sed -i -e 's/^      cargoSha256 = .*/      cargoSha256 = "$(CARGOSHA256)";/' default.nix;\
 	else \
 		echo "No holochain rev provided"; \
   fi
