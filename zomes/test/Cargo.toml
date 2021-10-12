@@ -9,7 +9,7 @@ name = "test"
 crate-type = [ "cdylib", "rlib" ]
 
 [dependencies]
-hdk = { git = "https://github.com/holochain/holochain", rev = "24ceb63bdea374d1936b723e1966caf2e55ebfdc", package = "hdk" }
+hdk = {git ="https://github.com/holochain/holochain", rev = "a1206a694fe3b521440fe633db99a50b8255c1b2", package = "hdk"}
 serde = "1.0.104"
 thiserror = "1.0.22"
 paste = "1.0.5"
