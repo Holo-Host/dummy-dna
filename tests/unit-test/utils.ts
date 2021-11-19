@@ -27,7 +27,7 @@ export const installAgents = async (conductor, agentNames, memProof?) => {
   const dnas = [
     {
       hash: await conductor.registerDna({path: testDna}),
-      nick: 'elemental-chat',
+      role_id: 'elemental-chat',
       membrane_proof: Array.from(memProof || SUCCESSFUL_JOINING_CODE), // default to successful mem proof
       uid: conductor.scenarioUID,
     }
