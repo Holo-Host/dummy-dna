@@ -16,6 +16,32 @@ fn target() -> ExternResult<EntryHash> {
     path("b")
 }
 
+#[hdk_extern]
+fn init(_: ()) -> ExternResult<InitCallbackResult> {
+    set_read_only_cap_tokens()?;
+
+    Ok(InitCallbackResult::Pass)
+}
+
+pub fn set_read_only_cap_tokens() -> ExternResult<()> {
+    let mut functions: GrantedFunctions = BTreeSet::new();
+    functions.insert((zome_info()?.zome_name, "returns_obj".into()));
+    functions.insert((zome_info()?.zome_name, "pass_obj".into()));
+    functions.insert((zome_info()?.zome_name, "return_failure".into()));
+    functions.insert((zome_info()?.zome_name, "create_link".into()));
+    functions.insert((zome_info()?.zome_name, "delete_link".into()));
+    functions.insert((zome_info()?.zome_name, "get_link".into()));
+    functions.insert((zome_info()?.zome_name, "delete_all_link".into()));
+    functions.insert((zome_info()?.zome_name, "signal_loopback".into()));
+    create_cap_grant(CapGrantEntry {
+        tag: "".into(),
+        access: ().into(),
+        functions,
+    })?;
+    Ok(())
+}
+
+
 #[derive(Serialize, Deserialize, SerializedBytes, Debug)]
 struct JoiningCode(String);
 
