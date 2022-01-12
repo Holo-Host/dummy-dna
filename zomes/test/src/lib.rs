@@ -16,12 +16,37 @@ fn target() -> ExternResult<EntryHash> {
     path("b")
 }
 
+#[derive(Debug, Serialize, Deserialize, SerializedBytes, Clone)]
+pub struct Props {
+    pub skip_proof: bool,
+}
+
+pub fn skip_proof_sb(encoded_props: &SerializedBytes) -> bool {
+    let maybe_props = Props::try_from(encoded_props.to_owned());
+    if let Ok(props) = maybe_props {
+        return props.skip_proof;
+    }
+    false
+}
+
+// This is useful for test cases where we don't want to provide a membrane proof
+pub fn skip_proof() -> bool {
+    if let Ok(info) = zome_info() {
+        return skip_proof_sb(&info.properties);
+    }
+    return false;
+}
+
 #[derive(Serialize, Deserialize, SerializedBytes, Debug)]
 struct JoiningCode(String);
 
 #[hdk_extern]
 fn genesis_self_check(data: GenesisSelfCheckData) -> ExternResult<ValidateCallbackResult> {
-    validate_joining_code(data.membrane_proof)
+    if skip_proof() {
+        Ok(ValidateCallbackResult::Valid)
+    } else {
+        validate_joining_code(data.membrane_proof)
+    }
 }
 
 pub fn is_read_only_proof(mem_proof: &MembraneProof) -> bool {
@@ -29,7 +54,9 @@ pub fn is_read_only_proof(mem_proof: &MembraneProof) -> bool {
     b == &[0]
 }
 
-fn validate_joining_code(membrane_proof: Option<MembraneProof>) -> ExternResult<ValidateCallbackResult> {
+fn validate_joining_code(
+    membrane_proof: Option<MembraneProof>,
+) -> ExternResult<ValidateCallbackResult> {
     debug!("Running Validation...");
     match membrane_proof {
         Some(mem_proof) => {
@@ -40,16 +67,25 @@ fn validate_joining_code(membrane_proof: Option<MembraneProof>) -> ExternResult<
                 Ok(m) => {
                     if m.0 == "Failing Joining Code" {
                         debug!("Invalidation successful...");
-                        return Ok(ValidateCallbackResult::Invalid("Joining code invalid: passed failing string".to_string()))
+                        return Ok(ValidateCallbackResult::Invalid(
+                            "Joining code invalid: passed failing string".to_string(),
+                        ));
                     } else {
                         debug!("Validation successful...");
-                        return Ok(ValidateCallbackResult::Valid)
+                        return Ok(ValidateCallbackResult::Valid);
                     }
                 }
-                Err(e) => return Ok(ValidateCallbackResult::Invalid(format!("Joining code invalid: unable to deserialize into element ({:?})", e)))
+                Err(e) => {
+                    return Ok(ValidateCallbackResult::Invalid(format!(
+                        "Joining code invalid: unable to deserialize into element ({:?})",
+                        e
+                    )))
+                }
             };
         }
-        None => Ok(ValidateCallbackResult::Invalid("No membrane proof found".to_string()))
+        None => Ok(ValidateCallbackResult::Invalid(
+            "No membrane proof found".to_string(),
+        )),
     }
 }
 
@@ -114,21 +150,31 @@ fn validate(data: ValidateData) -> ExternResult<ValidateCallbackResult> {
     let element = data.element.clone();
     let entry = element.into_inner().1;
     let entry = match entry {
-            ElementEntry::Present(e) => e,
-            _ => return Ok(ValidateCallbackResult::Valid),
+        ElementEntry::Present(e) => e,
+        _ => return Ok(ValidateCallbackResult::Valid),
     };
     if let Entry::Agent(_) = entry {
         match data.element.header().prev_header() {
             Some(header) => {
-                match must_get_valid_element(header.clone())?.signed_header().header() {
+                match must_get_valid_element(header.clone())?
+                    .signed_header()
+                    .header()
+                {
                     Header::AgentValidationPkg(pkg) => {
                         return validate_joining_code(pkg.membrane_proof.clone())
-                    },
-                    _ => return Ok(ValidateCallbackResult::Invalid("No Agent Validation Pkg found".to_string()))
+                    }
+                    _ => {
+                        return Ok(ValidateCallbackResult::Invalid(
+                            "No Agent Validation Pkg found".to_string(),
+                        ))
+                    }
                 }
-            },
+            }
             None => {
-                return Ok(ValidateCallbackResult::Invalid("Impossible state".to_string()))}
+                return Ok(ValidateCallbackResult::Invalid(
+                    "Impossible state".to_string(),
+                ))
+            }
         }
     }
     Ok(ValidateCallbackResult::Valid)
