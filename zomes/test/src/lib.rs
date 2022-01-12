@@ -25,14 +25,14 @@ fn init(_: ()) -> ExternResult<InitCallbackResult> {
 
 pub fn set_read_only_cap_tokens() -> ExternResult<()> {
     let mut functions: GrantedFunctions = BTreeSet::new();
-    functions.insert((zome_info()?.zome_name, "returns_obj".into()));
-    functions.insert((zome_info()?.zome_name, "pass_obj".into()));
-    functions.insert((zome_info()?.zome_name, "return_failure".into()));
-    functions.insert((zome_info()?.zome_name, "create_link".into()));
-    functions.insert((zome_info()?.zome_name, "delete_link".into()));
-    functions.insert((zome_info()?.zome_name, "get_link".into()));
-    functions.insert((zome_info()?.zome_name, "delete_all_link".into()));
-    functions.insert((zome_info()?.zome_name, "signal_loopback".into()));
+    functions.insert((zome_info()?.name, "returns_obj".into()));
+    functions.insert((zome_info()?.name, "pass_obj".into()));
+    functions.insert((zome_info()?.name, "return_failure".into()));
+    functions.insert((zome_info()?.name, "create_link".into()));
+    functions.insert((zome_info()?.name, "delete_link".into()));
+    functions.insert((zome_info()?.name, "get_link".into()));
+    functions.insert((zome_info()?.name, "delete_all_link".into()));
+    functions.insert((zome_info()?.name, "signal_loopback".into()));
     create_cap_grant(CapGrantEntry {
         tag: "".into(),
         access: ().into(),
@@ -40,7 +40,6 @@ pub fn set_read_only_cap_tokens() -> ExternResult<()> {
     })?;
     Ok(())
 }
-
 
 #[derive(Serialize, Deserialize, SerializedBytes, Debug)]
 struct JoiningCode(String);
@@ -55,7 +54,9 @@ pub fn is_read_only_proof(mem_proof: &MembraneProof) -> bool {
     b == &[0]
 }
 
-fn validate_joining_code(membrane_proof: Option<MembraneProof>) -> ExternResult<ValidateCallbackResult> {
+fn validate_joining_code(
+    membrane_proof: Option<MembraneProof>,
+) -> ExternResult<ValidateCallbackResult> {
     debug!("Running Validation...");
     match membrane_proof {
         Some(mem_proof) => {
@@ -66,16 +67,25 @@ fn validate_joining_code(membrane_proof: Option<MembraneProof>) -> ExternResult<
                 Ok(m) => {
                     if m.0 == "Failing Joining Code" {
                         debug!("Invalidation successful...");
-                        return Ok(ValidateCallbackResult::Invalid("Joining code invalid: passed failing string".to_string()))
+                        return Ok(ValidateCallbackResult::Invalid(
+                            "Joining code invalid: passed failing string".to_string(),
+                        ));
                     } else {
                         debug!("Validation successful...");
-                        return Ok(ValidateCallbackResult::Valid)
+                        return Ok(ValidateCallbackResult::Valid);
                     }
                 }
-                Err(e) => return Ok(ValidateCallbackResult::Invalid(format!("Joining code invalid: unable to deserialize into element ({:?})", e)))
+                Err(e) => {
+                    return Ok(ValidateCallbackResult::Invalid(format!(
+                        "Joining code invalid: unable to deserialize into element ({:?})",
+                        e
+                    )))
+                }
             };
         }
-        None => Ok(ValidateCallbackResult::Invalid("No membrane proof found".to_string()))
+        None => Ok(ValidateCallbackResult::Invalid(
+            "No membrane proof found".to_string(),
+        )),
     }
 }
 
@@ -112,13 +122,13 @@ fn delete_link(input: HeaderHash) -> ExternResult<HeaderHash> {
 }
 
 #[hdk_extern]
-fn get_links(_: ()) -> ExternResult<Links> {
+fn get_links(_: ()) -> ExternResult<Vec<Link>> {
     Ok(hdk::prelude::get_links(base()?, None)?)
 }
 
 #[hdk_extern]
 fn delete_all_links(_: ()) -> ExternResult<()> {
-    for link in hdk::prelude::get_links(base()?, None)?.into_inner() {
+    for link in hdk::prelude::get_links(base()?, None)? {
         hdk::prelude::delete_link(link.create_link_hash)?;
     }
     Ok(())
@@ -140,21 +150,31 @@ fn validate(data: ValidateData) -> ExternResult<ValidateCallbackResult> {
     let element = data.element.clone();
     let entry = element.into_inner().1;
     let entry = match entry {
-            ElementEntry::Present(e) => e,
-            _ => return Ok(ValidateCallbackResult::Valid),
+        ElementEntry::Present(e) => e,
+        _ => return Ok(ValidateCallbackResult::Valid),
     };
     if let Entry::Agent(_) = entry {
         match data.element.header().prev_header() {
             Some(header) => {
-                match must_get_valid_element(header.clone())?.signed_header().header() {
+                match must_get_valid_element(header.clone())?
+                    .signed_header()
+                    .header()
+                {
                     Header::AgentValidationPkg(pkg) => {
                         return validate_joining_code(pkg.membrane_proof.clone())
-                    },
-                    _ => return Ok(ValidateCallbackResult::Invalid("No Agent Validation Pkg found".to_string()))
+                    }
+                    _ => {
+                        return Ok(ValidateCallbackResult::Invalid(
+                            "No Agent Validation Pkg found".to_string(),
+                        ))
+                    }
                 }
-            },
+            }
             None => {
-                return Ok(ValidateCallbackResult::Invalid("Impossible state".to_string()))}
+                return Ok(ValidateCallbackResult::Invalid(
+                    "Impossible state".to_string(),
+                ))
+            }
         }
     }
     Ok(ValidateCallbackResult::Valid)
