@@ -24,7 +24,7 @@ pub struct Props {
 pub fn skip_proof_sb(encoded_props: &SerializedBytes) -> bool {
     let maybe_props = Props::try_from(encoded_props.to_owned());
     if let Ok(props) = maybe_props {
-        debug!(" ------------------- >> PROPS : {:?}", props);
+        debug!("Using props : {:?}", props);
         return props.skip_proof;
     }
     false
