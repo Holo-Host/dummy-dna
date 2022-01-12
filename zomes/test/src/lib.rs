@@ -24,6 +24,7 @@ pub struct Props {
 pub fn skip_proof_sb(encoded_props: &SerializedBytes) -> bool {
     let maybe_props = Props::try_from(encoded_props.to_owned());
     if let Ok(props) = maybe_props {
+        debug!(" ------------------- >> PROPS : {:?}", props);
         return props.skip_proof;
     }
     false
@@ -31,7 +32,7 @@ pub fn skip_proof_sb(encoded_props: &SerializedBytes) -> bool {
 
 // This is useful for test cases where we don't want to provide a membrane proof
 pub fn skip_proof() -> bool {
-    if let Ok(info) = zome_info() {
+    if let Ok(info) = dna_info() {
         return skip_proof_sb(&info.properties);
     }
     return false;
@@ -42,7 +43,7 @@ struct JoiningCode(String);
 
 #[hdk_extern]
 fn genesis_self_check(data: GenesisSelfCheckData) -> ExternResult<ValidateCallbackResult> {
-    if skip_proof() {
+    if skip_proof_sb(&data.dna_def.properties) {
         Ok(ValidateCallbackResult::Valid)
     } else {
         validate_joining_code(data.membrane_proof)
