@@ -161,7 +161,10 @@ fn validate(data: ValidateData) -> ExternResult<ValidateCallbackResult> {
                     .header()
                 {
                     Header::AgentValidationPkg(pkg) => {
-                        return validate_joining_code(pkg.membrane_proof.clone())
+                        if skip_proof() {
+                            return Ok(ValidateCallbackResult::Valid);
+                        }
+                        return validate_joining_code(pkg.membrane_proof.clone());
                     }
                     _ => {
                         return Ok(ValidateCallbackResult::Invalid(
