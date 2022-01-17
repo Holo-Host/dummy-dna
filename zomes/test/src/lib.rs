@@ -5,7 +5,7 @@ entry_defs![Path::entry_def()];
 fn path(s: &str) -> ExternResult<EntryHash> {
     let path = Path::from(s);
     path.ensure()?;
-    Ok(path.hash()?)
+    Ok(path.path_entry_hash()?)
 }
 
 fn base() -> ExternResult<EntryHash> {
