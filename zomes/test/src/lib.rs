@@ -41,12 +41,38 @@ pub fn set_read_only_cap_tokens() -> ExternResult<()> {
     Ok(())
 }
 
+#[derive(Debug, Serialize, Deserialize, SerializedBytes, Clone)]
+pub struct Props {
+    pub skip_proof: bool,
+}
+
+pub fn skip_proof_sb(encoded_props: &SerializedBytes) -> bool {
+    let maybe_props = Props::try_from(encoded_props.to_owned());
+    if let Ok(props) = maybe_props {
+        debug!("Using props : {:?}", props);
+        return props.skip_proof;
+    }
+    false
+}
+
+// This is useful for test cases where we don't want to provide a membrane proof
+pub fn skip_proof() -> bool {
+    if let Ok(info) = dna_info() {
+        return skip_proof_sb(&info.properties);
+    }
+    return false;
+}
+
 #[derive(Serialize, Deserialize, SerializedBytes, Debug)]
 struct JoiningCode(String);
 
 #[hdk_extern]
 fn genesis_self_check(data: GenesisSelfCheckData) -> ExternResult<ValidateCallbackResult> {
-    validate_joining_code(data.membrane_proof)
+    if skip_proof_sb(&data.dna_def.properties) {
+        Ok(ValidateCallbackResult::Valid)
+    } else {
+        validate_joining_code(data.membrane_proof)
+    }
 }
 
 pub fn is_read_only_proof(mem_proof: &MembraneProof) -> bool {
@@ -161,7 +187,10 @@ fn validate(data: ValidateData) -> ExternResult<ValidateCallbackResult> {
                     .header()
                 {
                     Header::AgentValidationPkg(pkg) => {
-                        return validate_joining_code(pkg.membrane_proof.clone())
+                        if skip_proof() {
+                            return Ok(ValidateCallbackResult::Valid);
+                        }
+                        return validate_joining_code(pkg.membrane_proof.clone());
                     }
                     _ => {
                         return Ok(ValidateCallbackResult::Invalid(
