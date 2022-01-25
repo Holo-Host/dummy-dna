@@ -48,3 +48,11 @@ curl --netrc \
     -H "Content-Type: $(file -b --mime-type $dna_file)" \
     --data-binary "@$dna_file" \
     "$upload_url?name=$(basename "$dna_file")"
+for NAME in alternate-happ-configs; do
+  alternate_happ_file="alternate-happ-configs/$NAME/test-$NAME.happ"
+  curl --netrc \
+      -H "Authorization: token $token" \
+      -H "Content-Type: $(file -b --mime-type $happ_file)" \
+      --data-binary "@$happ_file" \
+      "$upload_url?name=$(basename "$happ_file")"
+done

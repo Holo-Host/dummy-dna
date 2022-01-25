@@ -8,6 +8,7 @@
 SHELL		= bash
 DNANAME		= test
 DNA		= $(DNANAME).dna
+HAPP = ${DNANAME}.happ
 WASM		= target/wasm32-unknown-unknown/release/test.wasm
 
 # External targets; Uses a nix-shell environment to obtain Holochain runtimes, run tests, etc.
@@ -32,27 +33,33 @@ test-dna-debug:
 # Internal targets; require a Nix environment in order to be deterministic.
 # - Uses the version of `dna-util`, `holochain` on the system PATH.
 # - Normally called from within a Nix environment, eg. run `nix-shell`
-.PHONY:		rebuild install build build-cargo build-dna
+.PHONY:		rebuild install build
 rebuild:	clean build
 
 install:	build
 
-build:	build-cargo build-dna
+build: $(HAPP) alternate-happ-configs
 
-build:		$(DNA)
+
+$(HAPP): $(DNA) FORCE
+	@hc app pack . -o ./$(DNANAME).happ
+	@ls -l $@
 
 # Package the DNA from the built target release WASM
 $(DNA):		$(WASM) FORCE
 	@echo "Packaging DNA:"
 	@hc dna pack . -o ./$(DNANAME).dna
-	@hc app pack . -o ./$(DNANAME).happ
-	@ls -l $@
 
 # Recompile the target release WASM
 $(WASM): FORCE
 	@echo "Building  DNA WASM:"
 	@RUST_BACKTRACE=1 CARGO_TARGET_DIR=target cargo build \
 	    --release --target wasm32-unknown-unknown
+
+alternate-happ-configs: $(DNA) FORCE
+	@for NAME in $(shell ls alternate-happ-configs); do \
+		hc app pack "alternate-happ-configs/$$NAME" -o "alternate-happ-configs/$$NAME/$(DNANAME)-$$NAME.happ"; \
+	done
 
 #############################
 # █▀█ █▀▀ █░░ █▀▀ ▄▀█ █▀ █▀▀
