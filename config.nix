@@ -1,6 +1,6 @@
 {
   # git ls-remote https://github.com/holochain/holonix develop
-  holonixRevision = "9013d1310e2d37d718fe58d43b4a34aed12c8a59";
+  holonixRevision = "2f7b8047d6314f64fca34394a52d465c18b2f4d5";
 
   holochainVersionId = "v0_0_122";
 }
