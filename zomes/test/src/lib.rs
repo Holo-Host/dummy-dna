@@ -18,12 +18,12 @@ fn target() -> ExternResult<EntryHash> {
 
 #[hdk_extern]
 fn init(_: ()) -> ExternResult<InitCallbackResult> {
-    set_read_only_cap_tokens()?;
+    set_cap_tokens()?;
 
     Ok(InitCallbackResult::Pass)
 }
 
-pub fn set_read_only_cap_tokens() -> ExternResult<()> {
+pub fn set_cap_tokens() -> ExternResult<()> {
     let mut functions: GrantedFunctions = BTreeSet::new();
     functions.insert((zome_info()?.name, "returns_obj".into()));
     functions.insert((zome_info()?.name, "pass_obj".into()));
@@ -33,6 +33,7 @@ pub fn set_read_only_cap_tokens() -> ExternResult<()> {
     functions.insert((zome_info()?.name, "get_link".into()));
     functions.insert((zome_info()?.name, "delete_all_link".into()));
     functions.insert((zome_info()?.name, "signal_loopback".into()));
+    functions.insert((zome_info()?.name, "emit_signal_from_sibling_cell".into()));
     create_cap_grant(CapGrantEntry {
         tag: "".into(),
         access: ().into(),
@@ -168,6 +169,27 @@ pub struct LoopBack {
 #[hdk_extern]
 fn signal_loopback(value: LoopBack) -> ExternResult<()> {
     emit_signal(&value)?;
+    Ok(())
+}
+
+#[derive(Serialize, Deserialize, SerializedBytes, Debug)]
+struct SiblingEmitPayload {
+    sibling: CellId,
+    value: String,
+}
+
+#[hdk_extern]
+fn emit_signal_from_sibling_cell(payload: SiblingEmitPayload) -> ExternResult<()> {
+    let SiblingEmitPayload { sibling, value } = payload;
+    let zome_name = zome_info()?.name;
+    hdk::p2p::call(
+        Some(sibling),
+        zome_name,
+        FunctionName::new("signal_loopback".to_owned()),
+        None,
+        LoopBack { value },
+    )?;
+
     Ok(())
 }
 
