@@ -13,3 +13,15 @@ roles:
       uuid: ~
       version: ~
       clone_limit: 0
+  - id: test2
+    provisioning:
+      strategy: create
+      deferred: false
+    dna:
+      bundled: ./test.dna
+      properties:
+        # add an arbitrary property so that the DNA hashes differ
+        dna_index: 1
+      uuid: ~
+      version: ~
+      clone_limit: 0
