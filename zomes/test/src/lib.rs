@@ -223,7 +223,7 @@ fn validate(data: ValidateData) -> ExternResult<ValidateCallbackResult> {
             }
             None => {
                 return Ok(ValidateCallbackResult::Invalid(
-                    ""Impossible state (entry being validated will always have a previous header)"".to_string(),
+                    "Impossible state (entry being validated will always have a previous header)".to_string(),
                 ))
             }
         }
