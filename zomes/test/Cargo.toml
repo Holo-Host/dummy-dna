@@ -1,6 +1,6 @@
 [package]
 name = "test"
-version = "0.1.0-alpha1"
+version = "0.4.4"
 authors = [ "zo-el <joelulahanna@gmail.com>", "jetttech <lisa.jetton@holo.host>" ]
 edition = "2018"
 
@@ -9,7 +9,7 @@ name = "test"
 crate-type = [ "cdylib", "rlib" ]
 
 [dependencies]
-hdk = {git ="https://github.com/holochain/holochain", rev = "a1206a694fe3b521440fe633db99a50b8255c1b2", package = "hdk"}
+hdk = "0.0.118"
 serde = "1.0.104"
 thiserror = "1.0.22"
 paste = "1.0.5"
