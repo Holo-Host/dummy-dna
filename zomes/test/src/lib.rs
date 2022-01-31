@@ -49,7 +49,7 @@ pub struct Props {
 pub fn skip_proof_sb(encoded_props: &SerializedBytes) -> bool {
     let maybe_props = Props::try_from(encoded_props.to_owned());
     if let Ok(props) = maybe_props {
-        debug!("Using props : {:?}", props);
+        debug!("Skip proof check. Props: {:?}", props);
         return props.skip_proof;
     }
     false
@@ -201,7 +201,7 @@ fn validate(data: ValidateData) -> ExternResult<ValidateCallbackResult> {
             }
             None => {
                 return Ok(ValidateCallbackResult::Invalid(
-                    "Impossible state".to_string(),
+                    ""Impossible state (entry being validated will always have a previous header)"".to_string(),
                 ))
             }
         }
