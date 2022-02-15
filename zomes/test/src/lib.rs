@@ -183,7 +183,7 @@ fn emit_signal_from_sibling_cell(payload: SiblingEmitPayload) -> ExternResult<()
     let SiblingEmitPayload { sibling, value } = payload;
     let zome_name = zome_info()?.name;
     hdk::p2p::call(
-        Some(sibling),
+        CallTargetCell::Other(sibling),
         zome_name,
         FunctionName::new("signal_loopback".to_owned()),
         None,
@@ -223,7 +223,8 @@ fn validate(data: ValidateData) -> ExternResult<ValidateCallbackResult> {
             }
             None => {
                 return Ok(ValidateCallbackResult::Invalid(
-                    "Impossible state (entry being validated will always have a previous header)".to_string(),
+                    "Impossible state (entry being validated will always have a previous header)"
+                        .to_string(),
                 ))
             }
         }
