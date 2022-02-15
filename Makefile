@@ -22,11 +22,11 @@ nix-%:
 .PHONY: test test-dna test-dna-debug
 test: test-dna
 
-test-dna:	$(DNA) FORCE
+test-dna:	$(HAPP) FORCE
 	@echo "Starting Scenario tests in $$(pwd)..."; \
 		cd tests && ( [ -d  node_modules ] || npm install ) && npm test
 
-test-dna-debug:
+test-dna-debug: $(HAPP) FORCE
 	@echo "Starting Scenario tests in $$(pwd)..."; \
 	    cd tests && ( [ -d  node_modules ] || npm install ) && npm run test-debug
 
@@ -141,4 +141,8 @@ clean:
 	rm -rf \
 	    .cargo \
 	    target \
-	    $(DNA)
+	    $(DNA) \
+	    $(HAPP)
+	for NAME in $(shell ls alternate-happ-configs); do \
+		rm -f "alternate-happ-configs/$$NAME/$(DNANAME)-$$NAME.happ"; \
+	done
