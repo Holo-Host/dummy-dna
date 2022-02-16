@@ -6,9 +6,6 @@ import {
 import * as msgpack from '@msgpack/msgpack'
 import * as path from 'path'
 
-export const delay = ms => new Promise(r => setTimeout(r, ms))
-export const wait = delay
-
 export const localConductorConfig = Config.gen()
 
 export const testHapp = path.join(__dirname, '../../test.happ')
