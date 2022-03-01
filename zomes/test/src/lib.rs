@@ -194,40 +194,37 @@ fn emit_signal_from_sibling_cell(payload: SiblingEmitPayload) -> ExternResult<()
 }
 
 #[hdk_extern]
-fn validate(data: ValidateData) -> ExternResult<ValidateCallbackResult> {
-    let element = data.element.clone();
-    let entry = element.into_inner().1;
-    let entry = match entry {
-        ElementEntry::Present(e) => e,
-        _ => return Ok(ValidateCallbackResult::Valid),
-    };
-    if let Entry::Agent(_) = entry {
-        match data.element.header().prev_header() {
-            Some(header) => {
-                match must_get_valid_element(header.clone())?
-                    .signed_header()
-                    .header()
-                {
-                    Header::AgentValidationPkg(pkg) => {
-                        if skip_proof() {
-                            return Ok(ValidateCallbackResult::Valid);
-                        }
-                        return validate_joining_code(pkg.membrane_proof.clone());
+fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
+    match op {
+        Op::StoreEntry {
+            entry: Entry::Agent(_),
+            header:
+                SignedHashed {
+                    hashed:
+                        HoloHashed {
+                            content: header, ..
+                        },
+                    ..
+                },
+        } => {
+            let header = header.prev_header();
+            match must_get_valid_element(header.clone())?
+                .signed_header()
+                .header()
+            {
+                Header::AgentValidationPkg(pkg) => {
+                    if skip_proof() {
+                        return Ok(ValidateCallbackResult::Valid);
                     }
-                    _ => {
-                        return Ok(ValidateCallbackResult::Invalid(
-                            "No Agent Validation Pkg found".to_string(),
-                        ))
-                    }
+                    return validate_joining_code(pkg.membrane_proof.clone());
+                }
+                _ => {
+                    return Ok(ValidateCallbackResult::Invalid(
+                        "No Agent Validation Pkg found".to_string(),
+                    ))
                 }
             }
-            None => {
-                return Ok(ValidateCallbackResult::Invalid(
-                    "Impossible state (entry being validated will always have a previous header)"
-                        .to_string(),
-                ))
-            }
         }
+        _ => Ok(ValidateCallbackResult::Valid),
     }
-    Ok(ValidateCallbackResult::Valid)
 }
