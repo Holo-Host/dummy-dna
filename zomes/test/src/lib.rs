@@ -106,7 +106,7 @@ fn validate_joining_code(
                     return Ok(ValidateCallbackResult::Invalid(format!(
                         "Joining code invalid: unable to deserialize into element ({:?})",
                         e
-                    )))
+                    )));
                 }
             };
         }
@@ -140,7 +140,12 @@ fn return_failure(_: TestObj) -> ExternResult<()> {
 
 #[hdk_extern]
 fn create_link(_: ()) -> ExternResult<HeaderHash> {
-    Ok(hdk::prelude::create_link(base()?, target()?, ())?)
+    Ok(hdk::prelude::create_link(
+        base()?,
+        target()?,
+        HdkLinkType::Any,
+        (),
+    )?)
 }
 
 #[hdk_extern]
