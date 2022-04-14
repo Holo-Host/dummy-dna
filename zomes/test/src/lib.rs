@@ -30,8 +30,8 @@ pub fn set_cap_tokens() -> ExternResult<()> {
     functions.insert((zome_info()?.name, "return_failure".into()));
     functions.insert((zome_info()?.name, "create_link".into()));
     functions.insert((zome_info()?.name, "delete_link".into()));
-    functions.insert((zome_info()?.name, "get_link".into()));
-    functions.insert((zome_info()?.name, "delete_all_link".into()));
+    functions.insert((zome_info()?.name, "get_links".into()));
+    functions.insert((zome_info()?.name, "delete_all_links".into()));
     functions.insert((zome_info()?.name, "signal_loopback".into()));
     functions.insert((zome_info()?.name, "emit_signal_from_sibling_cell".into()));
     create_cap_grant(CapGrantEntry {
