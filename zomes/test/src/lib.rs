@@ -1,6 +1,6 @@
 use hdk::prelude::*;
 
-entry_defs![PathEntry::entry_def()];
+entry_defs![PathEntry::entry_def(), TestEntry::entry_def()];
 
 fn path(s: &str) -> ExternResult<EntryHash> {
     let path = Path::from(s);
@@ -66,7 +66,7 @@ struct JoiningCode(String);
 
 #[hdk_extern]
 fn genesis_self_check(data: GenesisSelfCheckData) -> ExternResult<ValidateCallbackResult> {
-    if skip_proof_sb(&data.dna_def.properties) {
+    if skip_proof_sb(&data.dna_info.properties) {
         Ok(ValidateCallbackResult::Valid)
     } else {
         validate_joining_code(data.membrane_proof)
@@ -87,7 +87,7 @@ fn validate_joining_code(
             if is_read_only_proof(&mem_proof) {
                 return Ok(ValidateCallbackResult::Valid);
             };
-            match JoiningCode::try_from(mem_proof.clone()) {
+            match JoiningCode::try_from((*mem_proof).clone()) {
                 Ok(m) => {
                     if m.0 == "Failing Joining Code" {
                         debug!("Invalidation successful...");
@@ -145,6 +145,19 @@ fn create_link(_: ()) -> ExternResult<HeaderHash> {
     )?)
 }
 
+#[hdk_entry(id = "test_entry", visibility = "public", required_validations = 2)]
+#[derive(Clone)]
+pub struct TestEntry {
+    random: Bytes,
+}
+
+#[hdk_extern]
+fn create_entry(_: ()) -> ExternResult<HeaderHash> {
+    Ok(hdk::prelude::create_entry(&TestEntry {
+        random: hdk::random::random_bytes(5)?,
+    })?)
+}
+
 #[hdk_extern]
 fn delete_link(input: HeaderHash) -> ExternResult<HeaderHash> {
     Ok(hdk::prelude::delete_link(input)?)
@@ -153,6 +166,25 @@ fn delete_link(input: HeaderHash) -> ExternResult<HeaderHash> {
 #[hdk_extern]
 fn get_links(_: ()) -> ExternResult<Vec<Link>> {
     Ok(hdk::prelude::get_links(base()?, None)?)
+}
+
+#[derive(Serialize, Deserialize, SerializedBytes, Debug)]
+struct Range {
+    from: u32,
+    to: u32,
+}
+
+#[hdk_extern]
+fn query_my_chain_by_range(range: Range) -> ExternResult<Vec<Element>> {
+    let filter = QueryFilter::new()
+        .sequence_range(ChainQueryFilterRange::HeaderSeqRange(range.from, range.to));
+    let chain = query(filter)?;
+    chain
+        .clone()
+        .into_iter()
+        .for_each(|f| debug!("Element {}: {:?}", f.header().header_seq(), f));
+
+    Ok(chain)
 }
 
 #[hdk_extern]

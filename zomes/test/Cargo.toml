@@ -2,14 +2,15 @@
 name = "test"
 version = "0.4.4"
 authors = [ "zo-el <joelulahanna@gmail.com>", "jetttech <lisa.jetton@holo.host>" ]
-edition = "2018"
+edition = "2021"
 
 [lib]
 name = "test"
 crate-type = [ "cdylib", "rlib" ]
 
 [dependencies]
-hdk = "=0.0.126"
+# hdk = "=0.0.126"
+hdk = { git = "https://github.com/holochain/holochain.git", rev = "7d5a80d0676e3a848952b9a3089c81a633739ca2", features = ["encoding"] }
 serde = "1.0.104"
 thiserror = "1.0.22"
 paste = "1.0.5"
