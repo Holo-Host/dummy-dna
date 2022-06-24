@@ -13,3 +13,7 @@ orchestrator.run()
 orchestrator = new Orchestrator()
 require('./bridge-call')(orchestrator)
 orchestrator.run()
+
+orchestrator = new Orchestrator()
+require('./cap-grants')(orchestrator)
+orchestrator.run()
