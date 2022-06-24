@@ -213,10 +213,8 @@ fn create_cap_grant_for_private_function(_: ()) -> ExternResult<CapSecret> {
 }
 
 #[hdk_extern]
-fn private_function(_: ()) -> ExternResult<TestObj> {
-    Ok(TestObj {
-        value: "this is the result of the private function".to_string(),
-    })
+fn private_function(_: ()) -> ExternResult<String> {
+    Ok("this is the result of the private function".to_string())
 }
 
 #[derive(Serialize, Deserialize, SerializedBytes, Debug)]
@@ -226,7 +224,7 @@ struct RemoteCallPrivateInput {
 }
 
 #[hdk_extern]
-fn remote_call_private_function(input: RemoteCallPrivateInput) -> ExternResult<TestObj> {
+fn remote_call_private_function(input: RemoteCallPrivateInput) -> ExternResult<String> {
     let zome_name = zome_info()?.name;
     let RemoteCallPrivateInput {
         to_cell,

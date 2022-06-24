@@ -13,7 +13,7 @@ module.exports = async (orchestrator) => {
 
     try {
       await alice.call('test', 'remote_call_private_function', { to_cell: bob.cellId, cap_secret: bad_secret })
-      t.fail("alice shouldn't be able to call bobs remote function with her a cap secret she created")
+      t.fail("alice shouldn't be able to call bobs remote function with a cap secret she created")
     } catch (e) {
       t.deepEqual(e, {
         type: 'error',
@@ -30,9 +30,7 @@ module.exports = async (orchestrator) => {
     try {
       let private_function_result = await alice.call('test', 'remote_call_private_function', { to_cell: bob.cellId, cap_secret })
 
-      t.deepEqual(private_function_result, {
-        value: "this is the result of the private function"
-      })
+      t.deepEqual(private_function_result, "this is the result of the private function")
     } catch (e) {
       console.log('e', e)
       t.fail()
