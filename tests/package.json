@@ -1,11 +1,13 @@
 {
   "scripts": {
-    "test": "node --loader ts-node/esm ts/index.ts"
+    "test": "TRYORAMA_LOG_LEVEL=0 RUST_BACKTRACE=1 node --loader ts-node/esm ts/index.ts | tap-diff",
+    "test-debug": "RUST_LOG=[debug]=debug node --loader ts-node/esm ts/index.ts | tap-diff"
   },
   "type": "module",
   "dependencies": {
     "@holo-host/cryptolib": "^0.3.2",
     "@holochain/tryorama": "^0.5.8",
+    "tap-diff": "^0.1.1",
     "tape": "^5.5.3",
     "tape-promise": "^4.0.0",
     "ts-node": "^10.8.1",
