@@ -16,7 +16,7 @@ test("bad membrane proof", async t => {
         type: 'error',
         data: {
           type: 'internal_error',
-          data: 'Conductor returned an error while using a ConductorApi: GenesisFailed { errors: [ConductorApiError(WorkflowError(GenesisFailure("Joining code invalid: passed failing string")))] }'
+          data: 'Conductor returned an error while using a ConductorApi: GenesisFailed { errors: [ConductorApiError(WorkflowError(GenesisFailure("Joining code invalid: passed failing string"))), ConductorApiError(WorkflowError(GenesisFailure("Joining code invalid: passed failing string")))] }'
         }
       });
     }  
