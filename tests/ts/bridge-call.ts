@@ -1,6 +1,6 @@
 import test from "tape-promise/tape.js"
 import { runScenario, Scenario } from '@holochain/tryorama'
-import { installAgents, INVALID_JOINING_CODE } from './utils.js'
+import { installAgents } from './utils.js'
 
 test("bridge call", async t => {
   await runScenario(async (scenario: Scenario) => {
