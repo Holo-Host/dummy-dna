@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "test": "node --loader ts-node/esm ts/endpoints.ts"
+    "test": "node --loader ts-node/esm ts/index.ts"
   },
   "type": "module",
   "dependencies": {

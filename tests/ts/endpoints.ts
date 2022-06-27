@@ -4,14 +4,12 @@ import { runScenario, Scenario } from '@holochain/tryorama'
 import { Codec } from '@holo-host/cryptolib'
 import { installAgents } from './utils.js'
 
-
 test("basic app functions", async t => {
   await runScenario(async (scenario: Scenario) => {
-    const [alicePlayer, bobPlayer] = await installAgents(scenario, 2)
+    const [alicePlayer, bobPlayer] = await installAgents(scenario, 2) // TODO
 
     const [alice] = alicePlayer.cells
     const [bob] = bobPlayer.cells    
-
 
     let response;
     try {
@@ -167,7 +165,5 @@ test("basic app functions", async t => {
       console.error("Error: ", e);
       t.fail()
     }
-
-    // end of tests
   })
 })
