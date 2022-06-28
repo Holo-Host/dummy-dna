@@ -231,8 +231,8 @@ fn remote_call_private_function(input: RemoteCallPrivateInput) -> ExternResult<S
         cap_secret,
     } = input;
 
-    match hdk::p2p::call(
-        CallTargetCell::Other(to_cell),
+    match hdk::p2p::call_remote(
+        to_cell.agent_pubkey().clone(),
         zome_name,
         FunctionName::new("private_function".to_owned()),
         Some(cap_secret),

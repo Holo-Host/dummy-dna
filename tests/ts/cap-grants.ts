@@ -21,6 +21,11 @@ test("cap grants", async t => {
       throw new Error ('Failed to install expected cells')
     }
 
+    const presentCellId = (cell_id: any) => [
+      Codec.HoloHash.encode('dna', cell_id[0]),
+      Codec.AgentId.encode(cell_id[1])
+    ]
+
     console.log('alice', inspect(alice))
     console.log('bob', inspect(bob))
     console.log('alice id', Codec.AgentId.encode(alice.cell_id[1]))
@@ -28,7 +33,44 @@ test("cap grants", async t => {
     console.log('alice dna', Codec.HoloHash.encode('dna', alice.cell_id[0]))    
     console.log('bob dna', Codec.HoloHash.encode('dna', bob.cell_id[0]))    
 
+
+    const conductors = scenario.conductors
+
+    conductors.forEach(async (conductor, i) => {    
+      const s = await conductor
+      .adminWs()
+      .requestAgentInfo({
+        cell_id: null,
+      });
+
+      console.log('s', i, s)
+
+      const cellIds = await conductor.adminWs().listCellIds()
+
+      console.log('cellIds', i, cellIds.map(presentCellId))
+    })
+
     await scenario.shareAllAgents()
+
+    console.log('^&* shared')
+    console.log('.')
+    console.log('.')
+    console.log('.')
+
+
+    conductors.forEach(async (conductor, i) => {    
+      const agentInfos = await conductor
+      .adminWs()
+      .requestAgentInfo({
+        cell_id: null,
+      });
+
+      console.log('agentInfos', i, agentInfos)
+
+      const cellIds = await conductor.adminWs().listCellIds()
+
+      console.log('cellIds', i, cellIds.map(presentCellId))
+    })
 
     await wait(1_000)
 
