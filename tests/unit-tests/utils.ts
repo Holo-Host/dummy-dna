@@ -10,9 +10,6 @@ import { inspect } from 'util'
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// export const localConductorConfig = Config.gen()
-
-// export const testHapp = path.join(__dirname, '../../alternate-happ-configs/skip-proof/test-skip-proof.happ')
 export const testHappPath = path.join(__dirname, '../../test.happ')
 
 const SUCCESSFUL_JOINING_CODE = msgpack.encode('joining code')
