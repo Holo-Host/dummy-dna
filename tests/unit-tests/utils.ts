@@ -1,4 +1,5 @@
 import {
+  Conductor,
   Player,
   Scenario
 } from '@holochain/tryorama'
@@ -55,4 +56,34 @@ export const installAgents = async ({
   }
 
   return agents
+}
+
+type InstallAgentsOnConductorArgs = {
+  conductor: Conductor,
+  number_of_agents: number,
+  memProof?: Uint8Array,
+  signalHandler?: any
+}
+
+export const installAgentsOnConductor = async ({
+  conductor,
+  number_of_agents,
+  memProof
+}: InstallAgentsOnConductorArgs) => {
+  const appBundleSource = { path: testHappPath }
+
+  const happBundleOptions = {
+    membraneProofs: {
+      test: Buffer.from(memProof ? memProof : SUCCESSFUL_JOINING_CODE),
+      test2: Buffer.from(memProof ? memProof : SUCCESSFUL_JOINING_CODE),
+    }
+  }
+
+  let agentHapps = []
+
+  for (let i = 0; i < number_of_agents; i++) {
+    agentHapps.push(await conductor.installHappBundle(appBundleSource, happBundleOptions))
+  }
+
+  return agentHapps
 }
