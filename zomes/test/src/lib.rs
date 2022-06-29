@@ -31,6 +31,7 @@ pub fn set_cap_tokens() -> ExternResult<()> {
     functions.insert((zome_info()?.name, "get_links".into()));
     functions.insert((zome_info()?.name, "signal_loopback".into()));
     functions.insert((zome_info()?.name, "emit_signal_from_sibling_cell".into()));
+    functions.insert((zome_info()?.name, "get_cap_grant".into()));
     create_cap_grant(CapGrantEntry {
         tag: "".into(),
         access: ().into(),
@@ -193,6 +194,61 @@ fn emit_signal_from_sibling_cell(payload: SiblingEmitPayload) -> ExternResult<()
     )?;
 
     Ok(())
+}
+
+#[hdk_extern]
+fn create_cap_grant_for_private_function(_: ()) -> ExternResult<CapSecret> {
+    let cap_secret = generate_cap_secret()?;
+
+    let mut functions: GrantedFunctions = BTreeSet::new();
+    functions.insert((zome_info()?.name, "private_function".into()));
+
+    create_cap_grant(CapGrantEntry {
+        tag: "".into(),
+        access: cap_secret.into(),
+        functions,
+    })?;
+
+    Ok(cap_secret)
+}
+
+#[hdk_extern]
+fn private_function(_: ()) -> ExternResult<String> {
+    Ok("this is the result of the private function".to_string())
+}
+
+#[derive(Serialize, Deserialize, SerializedBytes, Debug)]
+struct RemoteCallPrivateInput {
+    to_cell: CellId,
+    cap_secret: CapSecret,
+}
+
+#[hdk_extern]
+fn remote_call_private_function(input: RemoteCallPrivateInput) -> ExternResult<String> {
+    let zome_name = zome_info()?.name;
+    let RemoteCallPrivateInput {
+        to_cell,
+        cap_secret,
+    } = input;
+
+    match hdk::p2p::call_remote(
+        to_cell.agent_pubkey().clone(),
+        zome_name,
+        FunctionName::new("private_function".to_owned()),
+        Some(cap_secret),
+        Some(()),
+    )? {
+        ZomeCallResponse::Ok(response) => Ok(response.decode()?),
+        ZomeCallResponse::Unauthorized(_, _, _, _) => Err(WasmError::CallError(
+            "Unauthorized call to private_function".to_string(),
+        )),
+        ZomeCallResponse::NetworkError(_) => Err(WasmError::CallError(
+            "Network error while calling private_function".to_string(),
+        )),
+        ZomeCallResponse::CountersigningSession(_) => Err(WasmError::CallError(
+            "Unexpected CountersigningSession while calling private_function".to_string(),
+        )),
+    }
 }
 
 #[hdk_extern]
