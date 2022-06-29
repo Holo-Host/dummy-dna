@@ -32,6 +32,7 @@ pub fn set_cap_tokens() -> ExternResult<()> {
     functions.insert((zome_info()?.name, "signal_loopback".into()));
     functions.insert((zome_info()?.name, "emit_signal_from_sibling_cell".into()));
     functions.insert((zome_info()?.name, "get_cap_grant".into()));
+    functions.insert((zome_info()?.name, "create_cap_grant_for_private_function".into()));
     create_cap_grant(CapGrantEntry {
         tag: "".into(),
         access: ().into(),
