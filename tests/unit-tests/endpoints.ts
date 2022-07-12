@@ -6,9 +6,8 @@ import { installAgents } from './utils.js'
 
 test("basic app functions", async t => {
   await runScenario(async (scenario: Scenario) => {
-    const [alicePlayer, bobPlayer] = await installAgents({ scenario, number_of_agents: 1 })
-
-    const [alice] = alicePlayer.cells
+    const [alicePlayer] = await installAgents({ scenario, number_of_agents: 1 })
+    const [alice] = alicePlayer.cells[0]
 
     let response;
     try {
@@ -67,8 +66,8 @@ test("basic app functions", async t => {
       })
       console.log("create_link response:", link_hash_1);
       t.ok(link_hash_1)
-      // confirm response is header hash
-      let holohash = Codec.HoloHash.encode("header", link_hash_1)
+      // confirm response is action hash
+      let holohash = Codec.HoloHash.encode("action", link_hash_1)
       t.equal(holohash.substring(0, 5), 'uhCkk')
 
       link_hash_2 = await alice.callZome({
@@ -78,8 +77,8 @@ test("basic app functions", async t => {
       })
       console.log("create_link response:", link_hash_2);
       t.ok(link_hash_2)
-      // confirm response is header hash
-      holohash = Codec.HoloHash.encode("header", link_hash_2)
+      // confirm response is action hash
+      holohash = Codec.HoloHash.encode("action", link_hash_2)
       t.equal(holohash.substring(0, 5), 'uhCkk')  
 
       link_hash_3 = await alice.callZome({
@@ -89,8 +88,8 @@ test("basic app functions", async t => {
       })
       console.log("create_link response:", link_hash_3);
       t.ok(link_hash_3)
-      // confirm response is header hash
-      holohash = Codec.HoloHash.encode("header", link_hash_3)
+      // confirm response is action hash
+      holohash = Codec.HoloHash.encode("action", link_hash_3)
       t.equal(holohash.substring(0, 5), 'uhCkk')  
     } catch(e) {
       console.error("Error: ", e);

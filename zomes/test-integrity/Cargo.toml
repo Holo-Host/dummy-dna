@@ -1,0 +1,14 @@
+[package]
+name = "test_integrity"
+version = "0.4.4"
+authors = [ "zo-el <joelulahanna@gmail.com>", "jetttech <lisa.jetton@holo.host>" ]
+edition = "2021"
+
+[lib]
+name = "test_integrity"
+crate-type = [ "cdylib", "rlib" ]
+
+[dependencies]
+serde = "1.0.104"
+holochain_deterministic_integrity = "=0.0.10"
+membrane_manager_utils = {git = "https://github.com/holochain/hc-zome-lib", branch = "v0.0.138", package = "membrane_manager_utils"}

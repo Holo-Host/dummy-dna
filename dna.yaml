@@ -4,6 +4,13 @@ name: test-dna
 uuid: 9a28aac8-337c-11eb-adc1-0Z02acw20115
 properties: 
   skip_proof: false
-zomes:
-  - name: test
-    bundled: "target/wasm32-unknown-unknown/release/test.wasm"
+integrity:
+  zomes:
+    - name: test-integrity
+      bundled: './target/wasm32-unknown-unknown/release/test_integrity.wasm'
+coordinator:
+  zomes:
+    - name: test
+      bundled: "target/wasm32-unknown-unknown/release/test.wasm"
+      dependencies:
+        - name: test-integrity
