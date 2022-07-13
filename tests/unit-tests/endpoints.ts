@@ -7,7 +7,7 @@ import { installAgents } from './utils.js'
 test("basic app functions", async t => {
   await runScenario(async (scenario: Scenario) => {
     const [alicePlayer] = await installAgents({ scenario, number_of_agents: 1 })
-    const [alice] = alicePlayer.cells[0]
+    const [alice] = alicePlayer.cells
 
     let response;
     try {
