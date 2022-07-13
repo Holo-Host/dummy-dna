@@ -1,19 +1,15 @@
 use hdk::prelude::*;
 mod input_entries;
 pub use input_entries::*;
+use test_integrity::*;
 
-fn path(s: &str) -> ExternResult<EntryHash> {
-    let path = Path::from(s);
-    path.ensure()?;
-    Ok(path.path_entry_hash()?)
-}
-
+// TODO: Replace with DNA Hash
 fn base() -> ExternResult<EntryHash> {
-    path("a")
+    Ok(agent_info()?.agent_initial_pubkey.into())
 }
 
 fn target() -> ExternResult<EntryHash> {
-    path("b")
+    Ok(agent_info()?.agent_latest_pubkey.into())
 }
 
 pub fn set_cap_tokens() -> ExternResult<()> {
@@ -58,7 +54,9 @@ fn pass_obj(t: TestObj) -> ExternResult<TestObj> {
 
 #[hdk_extern]
 fn return_failure(_: TestObj) -> ExternResult<()> {
-    Err(WasmError::Guest("returned error".to_string()))
+    Err(wasm_error!(WasmErrorInner::Guest(
+        "returned error".to_string()
+    )))
 }
 
 #[hdk_extern]
@@ -66,8 +64,8 @@ fn create_link(_: ()) -> ExternResult<ActionHash> {
     Ok(hdk::prelude::create_link(
         base()?,
         target()?,
-        HdkLinkType::Any,
-        (),
+        LinkTypes::GenericLink,
+        GenericLink::tag(),
     )?)
 }
 
@@ -78,12 +76,12 @@ fn delete_link(input: ActionHash) -> ExternResult<ActionHash> {
 
 #[hdk_extern]
 fn get_links(_: ()) -> ExternResult<Vec<Link>> {
-    Ok(hdk::prelude::get_links(base()?, None)?)
+    Ok(hdk::prelude::get_links(base()?, .., None)?)
 }
 
 #[hdk_extern]
 fn delete_all_links(_: ()) -> ExternResult<()> {
-    for link in hdk::prelude::get_links(base()?, None)? {
+    for link in hdk::prelude::get_links(base()?, .., None)? {
         hdk::prelude::delete_link(link.create_link_hash)?;
     }
     Ok(())
@@ -146,15 +144,18 @@ fn remote_call_private_function(input: RemoteCallPrivateInput) -> ExternResult<S
         Some(cap_secret),
         Some(()),
     )? {
-        ZomeCallResponse::Ok(response) => Ok(response.decode()?),
-        ZomeCallResponse::Unauthorized(_, _, _, _) => Err(WasmError::CallError(
-            "Unauthorized call to private_function".to_string(),
-        )),
-        ZomeCallResponse::NetworkError(_) => Err(WasmError::CallError(
-            "Network error while calling private_function".to_string(),
-        )),
-        ZomeCallResponse::CountersigningSession(_) => Err(WasmError::CallError(
-            "Unexpected CountersigningSession while calling private_function".to_string(),
-        )),
+        ZomeCallResponse::Ok(response) => match response.decode() {
+            Ok(r) => Ok(r),
+            Err(e) => Err(wasm_error!(WasmErrorInner::Guest(e.to_string()))),
+        },
+        ZomeCallResponse::Unauthorized(_, _, _, _) => Err(wasm_error!(WasmErrorInner::CallError(
+            "Unauthorized call to private_function".to_string()
+        ))),
+        ZomeCallResponse::NetworkError(_) => Err(wasm_error!(WasmErrorInner::CallError(
+            "Network error while calling private_function".to_string()
+        ))),
+        ZomeCallResponse::CountersigningSession(_) => Err(wasm_error!(WasmErrorInner::CallError(
+            "Unexpected CountersigningSession while calling private_function".to_string()
+        ))),
     }
 }

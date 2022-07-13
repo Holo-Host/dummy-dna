@@ -9,6 +9,5 @@ name = "test_integrity"
 crate-type = [ "cdylib", "rlib" ]
 
 [dependencies]
-serde = "1.0.104"
+serde = "1.0"
 holochain_deterministic_integrity = "=0.0.10"
-membrane_manager_utils = {git = "https://github.com/holochain/hc-zome-lib", branch = "v0.0.138", package = "membrane_manager_utils"}

@@ -1,18 +1,18 @@
 use hdk::prelude::*;
 
-#[derive(Serialize, Deserialize, SerializedBytes, Debug)]
+#[derive(Serialize, Deserialize, Debug, SerializedBytes)]
 pub struct LoopBack {
-    value: String,
+    pub value: String,
 }
 
-#[derive(Serialize, Deserialize, SerializedBytes, Debug)]
-struct SiblingEmitPayload {
-    sibling: CellId,
-    value: String,
+#[derive(Serialize, Deserialize, Debug, SerializedBytes)]
+pub struct SiblingEmitPayload {
+    pub sibling: CellId,
+    pub value: String,
 }
 
-#[derive(Serialize, Deserialize, SerializedBytes, Debug)]
-struct RemoteCallPrivateInput {
-    to_cell: CellId,
-    cap_secret: CapSecret,
+#[derive(Serialize, Deserialize, Debug, SerializedBytes)]
+pub struct RemoteCallPrivateInput {
+    pub to_cell: CellId,
+    pub cap_secret: CapSecret,
 }

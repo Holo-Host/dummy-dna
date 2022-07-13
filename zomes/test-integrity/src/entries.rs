@@ -1,27 +1,29 @@
 use holochain_deterministic_integrity::prelude::*;
 
-#[hdk_link_types]
-pub enum LinkTypes {
-    PathLink,
+pub struct GenericLink;
+impl GenericLink {
+    const TAG: &'static [u8; 7] = b"generic";
+    /// Create the tag
+    pub fn tag() -> LinkTag {
+        LinkTag::new(*Self::TAG)
+    }
 }
 
-// entry_defs![PathEntry::entry_def()];
+#[hdk_link_types]
+pub enum LinkTypes {
+    GenericLink,
+}
 
 #[hdk_entry_helper]
-struct JoiningCode(String);
+pub struct JoiningCode(pub String);
 
 #[hdk_entry_helper]
 pub struct TestObj {
-    value: String,
+    pub value: String,
 }
 
 #[hdk_entry_defs]
 #[unit_enum(EntryTypesUnit)]
 pub enum EntryTypes {
-    #[entry_def(visibility = "public", required_validations = 2)]
-    Invoice(invoice::Invoice),
-    #[entry_def(visibility = "public", required_validations = 2)]
-    Promise(promise::Promise),
-    #[entry_def(visibility = "public", required_validations = 2)]
-    CounterSignedTx(transaction::CounterSignedTx),
+    TestObj(TestObj),
 }
