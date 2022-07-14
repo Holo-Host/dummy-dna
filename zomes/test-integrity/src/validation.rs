@@ -28,7 +28,6 @@ fn genesis_self_check(data: GenesisSelfCheckData) -> ExternResult<ValidateCallba
     if is_skipped() {
         Ok(ValidateCallbackResult::Valid)
     } else {
-        // Ok(ValidateCallbackResult::Valid)
         validate_joining_code(data.membrane_proof)
     }
 }

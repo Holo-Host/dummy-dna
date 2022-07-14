@@ -7,7 +7,7 @@ properties:
 integrity:
   zomes:
     - name: test-integrity
-      bundled: './target/wasm32-unknown-unknown/release/test_integrity.wasm'
+      bundled: 'target/wasm32-unknown-unknown/release/test_integrity.wasm'
 coordinator:
   zomes:
     - name: test
