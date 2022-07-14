@@ -1,6 +1,7 @@
 [workspace]
 members = [
   "zomes/test",
+  "zomes/test-integrity"
 ]
 
 [profile.dev]

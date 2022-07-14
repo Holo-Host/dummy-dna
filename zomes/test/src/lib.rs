@@ -1,26 +1,15 @@
 use hdk::prelude::*;
+mod input_entries;
+pub use input_entries::*;
+use test_integrity::*;
 
-entry_defs![PathEntry::entry_def()];
-
-fn path(s: &str) -> ExternResult<EntryHash> {
-    let path = Path::from(s);
-    path.ensure()?;
-    Ok(path.path_entry_hash()?)
-}
-
+// TODO: Replace with DNA Hash
 fn base() -> ExternResult<EntryHash> {
-    path("a")
+    Ok(agent_info()?.agent_initial_pubkey.into())
 }
 
 fn target() -> ExternResult<EntryHash> {
-    path("b")
-}
-
-#[hdk_extern]
-fn init(_: ()) -> ExternResult<InitCallbackResult> {
-    set_cap_tokens()?;
-
-    Ok(InitCallbackResult::Pass)
+    Ok(agent_info()?.agent_latest_pubkey.into())
 }
 
 pub fn set_cap_tokens() -> ExternResult<()> {
@@ -32,7 +21,10 @@ pub fn set_cap_tokens() -> ExternResult<()> {
     functions.insert((zome_info()?.name, "signal_loopback".into()));
     functions.insert((zome_info()?.name, "emit_signal_from_sibling_cell".into()));
     functions.insert((zome_info()?.name, "get_cap_grant".into()));
-    functions.insert((zome_info()?.name, "create_cap_grant_for_private_function".into()));
+    functions.insert((
+        zome_info()?.name,
+        "create_cap_grant_for_private_function".into(),
+    ));
     create_cap_grant(CapGrantEntry {
         tag: "".into(),
         access: ().into(),
@@ -41,83 +33,11 @@ pub fn set_cap_tokens() -> ExternResult<()> {
     Ok(())
 }
 
-#[derive(Debug, Serialize, Deserialize, SerializedBytes, Clone)]
-pub struct Props {
-    pub skip_proof: bool,
-}
-
-pub fn skip_proof_sb(encoded_props: &SerializedBytes) -> bool {
-    let maybe_props = Props::try_from(encoded_props.to_owned());
-    if let Ok(props) = maybe_props {
-        debug!("Skip proof check. Props: {:?}", props);
-        return props.skip_proof;
-    }
-    false
-}
-
-// This is useful for test cases where we don't want to provide a membrane proof
-pub fn skip_proof() -> bool {
-    if let Ok(info) = dna_info() {
-        return skip_proof_sb(&info.properties);
-    }
-    return false;
-}
-
-#[derive(Serialize, Deserialize, SerializedBytes, Debug)]
-struct JoiningCode(String);
-
 #[hdk_extern]
-fn genesis_self_check(data: GenesisSelfCheckData) -> ExternResult<ValidateCallbackResult> {
-    if skip_proof_sb(&data.dna_def.properties) {
-        Ok(ValidateCallbackResult::Valid)
-    } else {
-        validate_joining_code(data.membrane_proof)
-    }
-}
+fn init(_: ()) -> ExternResult<InitCallbackResult> {
+    set_cap_tokens()?;
 
-pub fn is_read_only_proof(mem_proof: &MembraneProof) -> bool {
-    let b = mem_proof.bytes();
-    b == &[0]
-}
-
-fn validate_joining_code(
-    membrane_proof: Option<MembraneProof>,
-) -> ExternResult<ValidateCallbackResult> {
-    debug!("Running Validation...");
-    match membrane_proof {
-        Some(mem_proof) => {
-            if is_read_only_proof(&mem_proof) {
-                return Ok(ValidateCallbackResult::Valid);
-            };
-            match JoiningCode::try_from(mem_proof.clone()) {
-                Ok(m) => {
-                    if m.0 == "Failing Joining Code" {
-                        debug!("Invalidation successful...");
-                        return Ok(ValidateCallbackResult::Invalid(
-                            "Joining code invalid: passed failing string".to_string(),
-                        ));
-                    } else {
-                        debug!("Validation successful...");
-                        return Ok(ValidateCallbackResult::Valid);
-                    }
-                }
-                Err(e) => {
-                    return Ok(ValidateCallbackResult::Invalid(format!(
-                        "Joining code invalid: unable to deserialize into element ({:?})",
-                        e
-                    )));
-                }
-            };
-        }
-        None => Ok(ValidateCallbackResult::Invalid(
-            "No membrane proof found".to_string(),
-        )),
-    }
-}
-
-#[derive(Serialize, Deserialize, SerializedBytes, Debug)]
-pub struct TestObj {
-    value: String,
+    Ok(InitCallbackResult::Pass)
 }
 
 #[hdk_extern]
@@ -134,52 +54,43 @@ fn pass_obj(t: TestObj) -> ExternResult<TestObj> {
 
 #[hdk_extern]
 fn return_failure(_: TestObj) -> ExternResult<()> {
-    Err(WasmError::Guest("returned error".to_string()))
+    Err(wasm_error!(WasmErrorInner::Guest(
+        "returned error".to_string()
+    )))
 }
 
 #[hdk_extern]
-fn create_link(_: ()) -> ExternResult<HeaderHash> {
+fn create_link(_: ()) -> ExternResult<ActionHash> {
     Ok(hdk::prelude::create_link(
         base()?,
         target()?,
-        HdkLinkType::Any,
-        (),
+        LinkTypes::GenericLink,
+        GenericLink::tag(),
     )?)
 }
 
 #[hdk_extern]
-fn delete_link(input: HeaderHash) -> ExternResult<HeaderHash> {
+fn delete_link(input: ActionHash) -> ExternResult<ActionHash> {
     Ok(hdk::prelude::delete_link(input)?)
 }
 
 #[hdk_extern]
 fn get_links(_: ()) -> ExternResult<Vec<Link>> {
-    Ok(hdk::prelude::get_links(base()?, None)?)
+    Ok(hdk::prelude::get_links(base()?, .., None)?)
 }
 
 #[hdk_extern]
 fn delete_all_links(_: ()) -> ExternResult<()> {
-    for link in hdk::prelude::get_links(base()?, None)? {
+    for link in hdk::prelude::get_links(base()?, .., None)? {
         hdk::prelude::delete_link(link.create_link_hash)?;
     }
     Ok(())
-}
-
-#[derive(Serialize, Deserialize, SerializedBytes, Debug)]
-pub struct LoopBack {
-    value: String,
 }
 
 #[hdk_extern]
 fn signal_loopback(value: LoopBack) -> ExternResult<()> {
     emit_signal(&value)?;
     Ok(())
-}
-
-#[derive(Serialize, Deserialize, SerializedBytes, Debug)]
-struct SiblingEmitPayload {
-    sibling: CellId,
-    value: String,
 }
 
 #[hdk_extern]
@@ -218,12 +129,6 @@ fn private_function(_: ()) -> ExternResult<String> {
     Ok("this is the result of the private function".to_string())
 }
 
-#[derive(Serialize, Deserialize, SerializedBytes, Debug)]
-struct RemoteCallPrivateInput {
-    to_cell: CellId,
-    cap_secret: CapSecret,
-}
-
 #[hdk_extern]
 fn remote_call_private_function(input: RemoteCallPrivateInput) -> ExternResult<String> {
     let zome_name = zome_info()?.name;
@@ -239,51 +144,18 @@ fn remote_call_private_function(input: RemoteCallPrivateInput) -> ExternResult<S
         Some(cap_secret),
         Some(()),
     )? {
-        ZomeCallResponse::Ok(response) => Ok(response.decode()?),
-        ZomeCallResponse::Unauthorized(_, _, _, _) => Err(WasmError::CallError(
-            "Unauthorized call to private_function".to_string(),
-        )),
-        ZomeCallResponse::NetworkError(_) => Err(WasmError::CallError(
-            "Network error while calling private_function".to_string(),
-        )),
-        ZomeCallResponse::CountersigningSession(_) => Err(WasmError::CallError(
-            "Unexpected CountersigningSession while calling private_function".to_string(),
-        )),
-    }
-}
-
-#[hdk_extern]
-fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
-    match op {
-        Op::StoreEntry {
-            entry: Entry::Agent(_),
-            header:
-                SignedHashed {
-                    hashed:
-                        HoloHashed {
-                            content: header, ..
-                        },
-                    ..
-                },
-        } => {
-            let header = header.prev_header();
-            match must_get_valid_element(header.clone())?
-                .signed_header()
-                .header()
-            {
-                Header::AgentValidationPkg(pkg) => {
-                    if skip_proof() {
-                        return Ok(ValidateCallbackResult::Valid);
-                    }
-                    return validate_joining_code(pkg.membrane_proof.clone());
-                }
-                _ => {
-                    return Ok(ValidateCallbackResult::Invalid(
-                        "No Agent Validation Pkg found".to_string(),
-                    ))
-                }
-            }
-        }
-        _ => Ok(ValidateCallbackResult::Valid),
+        ZomeCallResponse::Ok(response) => match response.decode() {
+            Ok(r) => Ok(r),
+            Err(e) => Err(wasm_error!(WasmErrorInner::Guest(e.to_string()))),
+        },
+        ZomeCallResponse::Unauthorized(_, _, _, _) => Err(wasm_error!(WasmErrorInner::CallError(
+            "Unauthorized call to private_function".to_string()
+        ))),
+        ZomeCallResponse::NetworkError(_) => Err(wasm_error!(WasmErrorInner::CallError(
+            "Network error while calling private_function".to_string()
+        ))),
+        ZomeCallResponse::CountersigningSession(_) => Err(wasm_error!(WasmErrorInner::CallError(
+            "Unexpected CountersigningSession while calling private_function".to_string()
+        ))),
     }
 }

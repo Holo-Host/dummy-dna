@@ -39,9 +39,9 @@ test("basic cap grant", async t => {
       t.fail("Should not be able to call Bobs private function with Alices provenance")
     } catch (e) {
       t.deepEqual(e, {
-        type: 'error',
+        type: 'error', 
         data: {
-          type: 'zome_call_unauthorized',
+          type: 'zome_call_unauthorized', 
           data: 'No capabilities grant has been committed that allows the CapSecret None to call the function private_function in zome test'
         }
       })
@@ -126,9 +126,9 @@ test("cap grant remote calls", async t => {
     } catch (e) {
       t.deepEqual(e, {
         type: 'error',
-        data: {
-          type: 'ribosome_error',
-          data: 'Wasm error while working with Ribosome: CallError("Unauthorized call to private_function")'
+        data: { 
+          type: 'ribosome_error', 
+          data: 'Wasm runtime error while working with Ribosome: RuntimeError: WasmError { file: "zomes/test/src/lib.rs", line: 151, error: CallError("Unauthorized call to private_function") }' 
         }
       })
     }

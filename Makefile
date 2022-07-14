@@ -63,7 +63,7 @@ alternate-happ-configs: $(DNA) FORCE
 
 #############################
 # █▀█ █▀▀ █░░ █▀▀ ▄▀█ █▀ █▀▀
-# █▀▄ ██▄ █▄▄ ██▄ █▀█ ▄█ ██▄
+# █▀▄ ██▄ █▄▄ ██▄ █▀█ ▄█ ██▄ | tap-diff
 #############################
 # requirements
 # - cargo-edit crate: `cargo install cargo-edit`
@@ -74,9 +74,16 @@ alternate-happ-configs: $(DNA) FORCE
 update:
 	echo '⚙️  Updating hdk crate...'
 	cargo upgrade hdk@=$(shell jq .hdk ./version-manager.json) --workspace
-	echo '⚙️  Updating holochainVersionId in nix...'
-	sed -i -e 's/^  holonixRevision = .*/  holonixRevision = $(shell jq .holonix_rev ./version-manager.json);/' config.nix;\
-	sed -i -e 's/^  holochainVersionId = .*/  holochainVersionId = $(shell jq .holochain_rev ./version-manager.json);/' config.nix;\
+	echo '⚙️  Updating holochain_deterministic_integrity crate...'
+	cargo upgrade holochain_deterministic_integrity@=$(shell jq .hdi ./version-manager.json) --workspace
+	echo '⚙️  Updating hc_utils crate...'
+	cargo upgrade hc_utils@=$(shell jq .hc_utils ./version-manager.json) --workspace	
+	echo '⚙️  Updating holonix...'
+	nix-shell --run "niv update"
+	echo '⚙️  Updating holochain_version in nix...'
+	nix-shell --pure https://github.com/holochain/holochain-nixpkgs/archive/develop.tar.gz \
+		--arg flavors '["release"]' \
+		--run "update-holochain-versions --git-src=revision:$(shell jq .holochain_rev ./version-manager.json)  --lair-version-req=$(shell jq .lair_rev ./version-manager.json) --output-file=holochain_version.nix"
 	echo '⚙️  Building dnas and happ...'
 	rm -rf Cargo.lock
 	make nix-build
@@ -94,3 +101,4 @@ clean:
 	for NAME in $(shell ls alternate-happ-configs); do \
 		rm -f "alternate-happ-configs/$$NAME/$(DNANAME)-$$NAME.happ"; \
 	done
+	
