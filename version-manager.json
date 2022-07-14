@@ -1,7 +1,7 @@
 {
     "hdk": "0.0.138",
+    "hdi": "0.0.10",
     "hc_utils": "0.0.138",
-    "holo_hash": "0.0.29",
     "holochain_rev": "holochain-0.0.145",
-	"lair_rev": "lair_keystore-v0.2.0"
+	"lair_rev": "v0.2.0"
 }
