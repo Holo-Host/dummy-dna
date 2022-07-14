@@ -47,12 +47,11 @@ test("basic app functions", async t => {
       })
     } catch(e) {
       console.log("return_failure response:", e);
-      t.deepEqual(e, {
+      t.deepEqual(e, { 
         type: 'error',
-        data: {
+        data: { 
           type: 'ribosome_error',
-          data: 'Wasm error while working with Ribosome: Deserialize([192])'
-        }
+          data: 'Wasm runtime error while working with Ribosome: RuntimeError: WasmError { file: "zomes/test/src/lib.rs", line: 55, error: Deserialize([192]) }' } 
       })
       t.pass()
     }
@@ -67,7 +66,7 @@ test("basic app functions", async t => {
       console.log("create_link response:", link_hash_1);
       t.ok(link_hash_1)
       // confirm response is action hash
-      let holohash = Codec.HoloHash.encode("action", link_hash_1)
+      let holohash = Codec.HoloHash.encode("header", link_hash_1)
       t.equal(holohash.substring(0, 5), 'uhCkk')
 
       link_hash_2 = await alice.callZome({
@@ -78,7 +77,7 @@ test("basic app functions", async t => {
       console.log("create_link response:", link_hash_2);
       t.ok(link_hash_2)
       // confirm response is action hash
-      holohash = Codec.HoloHash.encode("action", link_hash_2)
+      holohash = Codec.HoloHash.encode("header", link_hash_2)
       t.equal(holohash.substring(0, 5), 'uhCkk')  
 
       link_hash_3 = await alice.callZome({
@@ -89,7 +88,7 @@ test("basic app functions", async t => {
       console.log("create_link response:", link_hash_3);
       t.ok(link_hash_3)
       // confirm response is action hash
-      holohash = Codec.HoloHash.encode("action", link_hash_3)
+      holohash = Codec.HoloHash.encode("header", link_hash_3)
       t.equal(holohash.substring(0, 5), 'uhCkk')  
     } catch(e) {
       console.error("Error: ", e);

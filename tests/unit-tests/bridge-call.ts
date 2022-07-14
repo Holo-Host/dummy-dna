@@ -13,7 +13,6 @@ test("bridge call", async t => {
     })
     const [cell1, cell2] = alicePlayer.cells
 
-
     const payload = { value: 'moosetown' }
     await cell1.callZome({
       zome_name: 'test', 

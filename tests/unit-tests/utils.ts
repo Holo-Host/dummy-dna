@@ -1,8 +1,10 @@
 import {
   Conductor,
+  HappBundleOptions,
   Player,
   Scenario
 } from '@holochain/tryorama'
+import { AppBundleSource, AppSignalCb } from "@holochain/client";
 import * as msgpack from '@msgpack/msgpack'
 import path from 'path';
 import {fileURLToPath} from 'url'
@@ -23,13 +25,15 @@ type InstallAgentsArgs = {
   signalHandler?: any
 }
 
+type PlayerHappBundleOptions = HappBundleOptions & { signalHandler?: AppSignalCb };
+
 export const installAgents = async ({
   scenario,
   number_of_agents,
   memProof,
   signalHandler
 }: InstallAgentsArgs) => {
-  const happBundleOptions = {
+  const happBundleOptions: PlayerHappBundleOptions = {
     membraneProofs: {
       test: Buffer.from(memProof ? memProof : SUCCESSFUL_JOINING_CODE),
       test2: Buffer.from(memProof ? memProof : SUCCESSFUL_JOINING_CODE),
@@ -41,7 +45,7 @@ export const installAgents = async ({
 
   for (let i = 0; i < number_of_agents; i++) {
     playersHappBundles.push({
-      appBundleSource: { path: testHappPath },
+      appBundleSource: { path: testHappPath } as AppBundleSource,
       options: happBundleOptions
     })
   }
@@ -70,9 +74,9 @@ export const installAgentsOnConductor = async ({
   number_of_agents,
   memProof
 }: InstallAgentsOnConductorArgs) => {
-  const appBundleSource = { path: testHappPath }
+  const appBundleSource: AppBundleSource = { path: testHappPath }
 
-  const happBundleOptions = {
+  const happBundleOptions: HappBundleOptions = {
     membraneProofs: {
       test: Buffer.from(memProof ? memProof : SUCCESSFUL_JOINING_CODE),
       test2: Buffer.from(memProof ? memProof : SUCCESSFUL_JOINING_CODE),
