@@ -1,6 +1,5 @@
 use super::JoiningCode;
 use holochain_deterministic_integrity::prelude::*;
-use std::sync::Arc;
 
 #[derive(Debug, Serialize, Deserialize, SerializedBytes, Clone)]
 pub struct Props {
@@ -29,6 +28,7 @@ fn genesis_self_check(data: GenesisSelfCheckData) -> ExternResult<ValidateCallba
     if is_skipped() {
         Ok(ValidateCallbackResult::Valid)
     } else {
+        // Ok(ValidateCallbackResult::Valid)
         validate_joining_code(data.membrane_proof)
     }
 }
@@ -48,14 +48,7 @@ fn validate_joining_code(
                 return Ok(ValidateCallbackResult::Valid);
             };
 
-            let mp = &*Arc::try_unwrap(mem_proof).unwrap_err();
-
-            let ser_mp = match SerializedBytes::try_from(mp) {
-                Ok(sb) => sb,
-                Err(e) => return Err(wasm_error!(WasmErrorInner::Guest(e.to_string()))),
-            };
-
-            match JoiningCode::try_from(ser_mp) {
+            match JoiningCode::try_from((*mem_proof).clone()) {
                 Ok(m) => {
                     if m.0 == "Failing Joining Code" {
                         // debug!("Invalidation successful...");
