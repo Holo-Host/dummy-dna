@@ -1,6 +1,6 @@
 [package]
 name = "test_integrity"
-version = "0.4.4"
+version = "0.1.0"
 authors = [ "zo-el <joelulahanna@gmail.com>", "jetttech <lisa.jetton@holo.host>" ]
 edition = "2021"
 
