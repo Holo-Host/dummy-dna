@@ -72,7 +72,7 @@ alternate-happ-configs: $(DNA) FORCE
 # make update
 
 update:
-echo '⚙️  Updating hdk crate...'
+	echo '⚙️  Updating hdk crate...'
 	cargo upgrade hdk@=$(shell jq .hdk ./version-manager.json) --workspace
 	echo '⚙️  Updating holochain_deterministic_integrity crate...'
 	cargo upgrade holochain_deterministic_integrity@=$(shell jq .hdi ./version-manager.json) --workspace
@@ -89,6 +89,7 @@ echo '⚙️  Updating hdk crate...'
 	make nix-build
 	echo '⚙️  Running tests...'
 	make nix-test-dna-debug
+
 # Generic targets; does not require a Nix environment
 .PHONY: clean
 clean:
@@ -100,3 +101,4 @@ clean:
 	for NAME in $(shell ls alternate-happ-configs); do \
 		rm -f "alternate-happ-configs/$$NAME/$(DNANAME)-$$NAME.happ"; \
 	done
+\
