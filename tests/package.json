@@ -4,7 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "TRYORAMA_LOG_LEVEL=error RUST_BACKTRACE=1 node --loader ts-node/esm unit-tests/index.ts",
+    "test": "TRYORAMA_LOG_LEVEL=error RUST_BACKTRACE=1 node --loader ts-node/esm unit-tests/index.ts | tap-diff",
     "test-debug": "RUST_LOG=[debug]=debug node --loader ts-node/esm unit-tests/index.ts"
   },
   "authors": [

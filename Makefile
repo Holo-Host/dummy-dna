@@ -63,7 +63,7 @@ alternate-happ-configs: $(DNA) FORCE
 
 #############################
 # █▀█ █▀▀ █░░ █▀▀ ▄▀█ █▀ █▀▀
-# █▀▄ ██▄ █▄▄ ██▄ █▀█ ▄█ ██▄
+# █▀▄ ██▄ █▄▄ ██▄ █▀█ ▄█ ██▄ | tap-diff
 #############################
 # requirements
 # - cargo-edit crate: `cargo install cargo-edit`
@@ -101,4 +101,4 @@ clean:
 	for NAME in $(shell ls alternate-happ-configs); do \
 		rm -f "alternate-happ-configs/$$NAME/$(DNANAME)-$$NAME.happ"; \
 	done
-\
+	
