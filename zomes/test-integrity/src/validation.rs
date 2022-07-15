@@ -1,5 +1,5 @@
 use super::JoiningCode;
-use holochain_deterministic_integrity::prelude::*;
+use hdi::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, SerializedBytes, Clone)]
 pub struct Props {
