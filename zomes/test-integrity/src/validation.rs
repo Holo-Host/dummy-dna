@@ -1,5 +1,5 @@
 use super::JoiningCode;
-use holochain_deterministic_integrity::prelude::*;
+use hdi::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, SerializedBytes, Clone)]
 pub struct Props {
@@ -76,7 +76,7 @@ fn validate_joining_code(
 #[hdk_extern]
 fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
     match op {
-        Op::StoreEntry {
+        Op::StoreEntry(StoreEntry {
             entry: Entry::Agent(_),
             action:
                 SignedHashed {
@@ -86,7 +86,7 @@ fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         },
                     ..
                 },
-        } => {
+        }) => {
             let action = action.prev_action();
             match must_get_valid_record(action.clone())?
                 .signed_action()

@@ -2,4 +2,3 @@ target/
 .cargo/
 *.dna
 *.happ
-Cargo.lock
