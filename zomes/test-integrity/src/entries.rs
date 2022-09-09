@@ -12,6 +12,7 @@ impl GenericLink {
 #[hdk_link_types]
 pub enum LinkTypes {
     GenericLink,
+    Path,
 }
 
 #[hdk_entry_helper]
