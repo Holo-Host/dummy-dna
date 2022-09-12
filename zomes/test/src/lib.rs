@@ -98,7 +98,7 @@ fn emit_signal_from_sibling_cell(payload: SiblingEmitPayload) -> ExternResult<()
     let SiblingEmitPayload { sibling, value } = payload;
     let zome_name = zome_info()?.name;
     hdk::p2p::call(
-        CallTargetCell::Other(sibling),
+        CallTargetCell::OtherCell(sibling),
         zome_name,
         FunctionName::new("signal_loopback".to_owned()),
         None,
