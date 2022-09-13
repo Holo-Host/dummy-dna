@@ -58,7 +58,7 @@ $(WASM): FORCE
 
 alternate-happ-configs: $(DNA) FORCE
 	@for NAME in $(shell ls alternate-happ-configs); do \
-		hc app pack "alternate-happ-configs/$$NAME" -o "alternate-happ-configs/$$NAME/$(DNANAME)-$$NAME.happ"; \
+		hc app pack "alternate-happ-configs/$$NAME" -o "$(DNANAME)-$$NAME.happ"; \
 	done
 
 #############################

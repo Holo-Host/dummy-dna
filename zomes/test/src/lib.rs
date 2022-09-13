@@ -3,9 +3,10 @@ mod input_entries;
 pub use input_entries::*;
 use test_integrity::*;
 
-// TODO: Replace with DNA Hash
 fn base() -> ExternResult<EntryHash> {
-    Ok(agent_info()?.agent_initial_pubkey.into())
+    let base = "base".to_string();
+    let _ = Path::from(&base).typed(LinkTypes::Path)?.ensure();
+    Path::from(base).path_entry_hash()
 }
 
 fn target() -> ExternResult<EntryHash> {
