@@ -128,7 +128,7 @@ test("cap grant remote calls", async t => {
         type: 'error',
         data: { 
           type: 'ribosome_error', 
-          data: 'Wasm runtime error while working with Ribosome: RuntimeError: WasmError { file: "zomes/test/src/lib.rs", line: 151, error: CallError("Unauthorized call to private_function") }' 
+          data: 'Wasm runtime error while working with Ribosome: RuntimeError: WasmError { file: "zomes/test/src/lib.rs", line: 152, error: CallError("Unauthorized call to private_function") }' 
         }
       })
     }

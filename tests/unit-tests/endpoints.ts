@@ -51,7 +51,7 @@ test("basic app functions", async t => {
         type: 'error',
         data: { 
           type: 'ribosome_error',
-          data: 'Wasm runtime error while working with Ribosome: RuntimeError: WasmError { file: "zomes/test/src/lib.rs", line: 55, error: Deserialize([192]) }' } 
+          data: 'Wasm runtime error while working with Ribosome: RuntimeError: WasmError { file: "zomes/test/src/lib.rs", line: 56, error: Deserialize([192]) }' } 
       })
       t.pass()
     }
