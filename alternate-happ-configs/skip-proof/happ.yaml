@@ -9,8 +9,8 @@ roles:
       deferred: false
     dna:
       bundled: ../../test.dna
-      properties:
-        skip_proof: true
-      uuid: ~
-      version: ~
+      modifiers:
+        properties:
+          skip_proof: true
+        network_seed: ~
       clone_limit: 0
