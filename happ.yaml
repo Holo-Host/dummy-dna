@@ -9,9 +9,9 @@ roles:
       deferred: false
     dna:
       bundled: ./test.dna
-      properties: ~
-      uuid: ~
-      version: ~
+      modifiers:
+        properties: ~
+        network_seed: ~
       clone_limit: 0
   - id: test2
     provisioning:
@@ -19,9 +19,9 @@ roles:
       deferred: false
     dna:
       bundled: ./test.dna
-      properties:
-        # add an arbitrary property so that the DNA hashes differ
-        dna_index: 1
-      uuid: ~
-      version: ~
+      modifiers:
+        properties:
+          # add an arbitrary property so that the DNA hashes differ
+          dna_index: 1
+        network_seed: ~
       clone_limit: 0
