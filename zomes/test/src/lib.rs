@@ -71,6 +71,56 @@ fn create_link(_: ()) -> ExternResult<ActionHash> {
 }
 
 #[hdk_extern]
+fn create_strict_entry(value: String) -> ExternResult<ActionHash> {
+    let value = EntryTypes::TestObj(TestObj { value });
+    HDK.with(|h| {
+        h.borrow().create(CreateInput::new(
+            ScopedEntryDefIndex::try_from(&value)?,
+            EntryVisibility::from(&value),
+            value.try_into().unwrap(),
+            ChainTopOrdering::Strict,
+        ))
+    })
+}
+
+#[hdk_extern]
+fn get_local_chain(_: ()) -> ExternResult<Vec<TestObj>> {
+    let filter = QueryFilter::new();
+    let with_entry_filter = filter.include_entries(true);
+    let entry_filter = with_entry_filter.entry_type(EntryTypesUnit::TestObj.try_into()?);
+    let record = query(entry_filter)?;
+
+    let a = record
+        .into_iter()
+        .filter_map(|e| {
+            if let Some(a) = e.entry().clone().into_option() {
+                Some(TestObj::try_from(a).unwrap())
+            } else {
+                None
+            }
+        })
+        .collect();
+
+    Ok(a)
+}
+
+#[hdk_extern(infallible)]
+pub fn post_commit(_: Vec<SignedActionHashed>) -> ExternResult<()> {
+    let value = EntryTypes::PostCommit(PostCommit(sys_time()?));
+    match HDK.with(|h| {
+        h.borrow().create(CreateInput::new(
+            ScopedEntryDefIndex::try_from(&value)?,
+            EntryVisibility::from(&value),
+            value.try_into().unwrap(),
+            ChainTopOrdering::Strict,
+        ))
+    }) {
+        _ => {}
+    }
+    Ok(())
+}
+
+#[hdk_extern]
 fn delete_link(input: ActionHash) -> ExternResult<ActionHash> {
     Ok(hdk::prelude::delete_link(input)?)
 }

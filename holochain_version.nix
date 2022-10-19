@@ -1,11 +1,11 @@
 # This file was generated with the following command:
-# update-holochain-versions --git-src=revision:holochain-0.0.165 --output-file=holochain_version.nix
+# update-holochain-versions --git-src=revision:holochain-0.0.168 --output-file=holochain_version.nix
 # For usage instructions please visit https://github.com/holochain/holochain-nixpkgs/#readme
 
 {
     url = "https://github.com/holochain/holochain";
-    rev = "holochain-0.0.165";
-    sha256 = "sha256-rjRdYLYhO8nrigCIK76eGcXOqxNZDkhrslXeiYSCZNk=";
+    rev = "holochain-0.0.168";
+    sha256 = "sha256-1Uk3l6IVAl2P5afdCzVY7wh/ITQIRDl7amTF5z1TE9Y=";
     cargoLock = {
         outputHashes = {
         };

@@ -17,6 +17,8 @@ pub enum LinkTypes {
 
 #[hdk_entry_helper]
 pub struct JoiningCode(pub String);
+#[hdk_entry_helper]
+pub struct PostCommit(pub Timestamp);
 
 #[hdk_entry_helper]
 pub struct TestObj {
@@ -26,5 +28,8 @@ pub struct TestObj {
 #[hdk_entry_defs]
 #[unit_enum(EntryTypesUnit)]
 pub enum EntryTypes {
+    #[entry_def(required_validations = 1)]
     TestObj(TestObj),
+    #[entry_def(required_validations = 1)]
+    PostCommit(PostCommit),
 }
