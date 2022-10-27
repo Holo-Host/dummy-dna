@@ -72,6 +72,7 @@ alternate-happ-configs: $(DNA) FORCE
 # make update
 
 update:
+	rm -f Cargo.lock
 	echo '⚙️  Updating hdk crate...'
 	cargo upgrade hdk@=$(shell jq .hdk ./version-manager.json) --workspace --pinned
 	echo '⚙️  Updating hdi crate...'
