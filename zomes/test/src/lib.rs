@@ -42,6 +42,11 @@ fn init(_: ()) -> ExternResult<InitCallbackResult> {
 }
 
 #[hdk_extern]
+fn dna_info(_: ()) -> ExternResult<DnaInfo> {
+    Ok(hdk::prelude::dna_info()?)
+}
+
+#[hdk_extern]
 fn returns_obj(_: ()) -> ExternResult<TestObj> {
     Ok(TestObj {
         value: "This is the returned value".to_string(),
