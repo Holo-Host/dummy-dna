@@ -42,8 +42,9 @@ fn init(_: ()) -> ExternResult<InitCallbackResult> {
 }
 
 #[hdk_extern]
-fn dna_info(_: ()) -> ExternResult<DnaInfo> {
-    Ok(hdk::prelude::dna_info()?)
+fn dna_info(_: ()) -> ExternResult<Props> {
+    let dna_info = hdk::prelude::dna_info()?;
+    Ok(Props::try_from(dna_info.properties).unwrap())
 }
 
 #[hdk_extern]

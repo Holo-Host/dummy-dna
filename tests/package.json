@@ -1,29 +1,29 @@
 {
-  "name": "dummny-dna",
-  "version": "0.0.1",
-  "main": "index.js",
-  "type": "module",
-  "scripts": {
-    "test": "TRYORAMA_LOG_LEVEL=error RUST_BACKTRACE=1 node --loader ts-node/esm unit-tests/index.ts | tap-diff",
-    "test-debug": "RUST_LOG=[debug]=debug node --loader ts-node/esm unit-tests/index.ts"
-  },
-  "authors": [
-    "zo-el<joelulahanna@gmail.com>",
-    "jetttech<lisa.jetton@holo.host>"
-  ],
-  "license": "ISC",
-  "dependencies": {
-    "@holo-host/cryptolib": "^0.3.2",
-    "@holochain/tryorama": "0.9",
-    "@msgpack/msgpack": "^2.7.2",
-    "tap-diff": "^0.1.1",
-    "tape": "^5.5.3",
-    "tape-promise": "^4.0.0",
-    "ts-node": "^10.8.1",
-    "typescript": "^4.7.4"
-  },
-  "devDependencies": {
-    "@types/tape": "^4.13.2",
-    "@types/tape-promise": "^4.0.1"
-  }
+	"name": "dummny-dna",
+	"version": "0.0.1",
+	"main": "index.js",
+	"type": "module",
+	"scripts": {
+		"test": "TRYORAMA_LOG_LEVEL=error RUST_BACKTRACE=1 node --loader ts-node/esm unit-tests/index.ts | tap-diff",
+		"test-debug": "RUST_LOG=[debug]=debug node --loader ts-node/esm unit-tests/index.ts"
+	},
+	"authors": [
+		"zo-el<joelulahanna@gmail.com>",
+		"jetttech<lisa.jetton@holo.host>"
+	],
+	"license": "ISC",
+	"dependencies": {
+		"@holo-host/cryptolib": "^0.3.2",
+		"@holochain/tryorama": "0.9",
+		"@msgpack/msgpack": "^2.7.2",
+		"tap-diff": "^0.1.1",
+		"tape": "^5.5.3",
+		"tape-promise": "^4.0.0",
+		"ts-node": "^10.8.1",
+		"typescript": "^4.7.4"
+	},
+	"devDependencies": {
+		"@types/tape": "^4.13.2",
+		"@types/tape-promise": "^4.0.1"
+	}
 }
