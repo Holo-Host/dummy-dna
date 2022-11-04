@@ -4,6 +4,7 @@ use hdi::prelude::*;
 #[derive(Debug, Serialize, Deserialize, SerializedBytes, Clone)]
 pub struct Props {
     pub skip_proof: bool,
+    pub dna_index: i8,
 }
 
 /// Checking properties for `not_editable_profile` flag

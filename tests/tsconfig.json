@@ -1,16 +1,14 @@
 {
-  "compilerOptions": {
-    "module": "ESNext",
-    "target": "ESNext",
-    "moduleResolution": "Node",
-    "sourceMap": true,
-    "declaration": true,
-    "forceConsistentCasingInFileNames": true,
-    "allowSyntheticDefaultImports": true,
-    "skipLibCheck": true,
-    "strict": false,
-  },  
-  "include": [
-    "unit-tests/**/*"
-  ]
+	"compilerOptions": {
+		"module": "ESNext",
+		"target": "ESNext",
+		"moduleResolution": "Node",
+		"sourceMap": true,
+		"declaration": true,
+		"forceConsistentCasingInFileNames": true,
+		"allowSyntheticDefaultImports": true,
+		"skipLibCheck": true,
+		"strict": false
+	},
+	"include": ["unit-tests/**/*"]
 }

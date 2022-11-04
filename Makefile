@@ -22,11 +22,11 @@ nix-%:
 .PHONY: test test-dna test-dna-debug
 test: test-dna
 
-test-dna:	$(HAPP) FORCE
+test-dna:	build FORCE
 	@echo "Starting Scenario tests in $$(pwd)..."; \
 		cd tests && ( [ -d  node_modules ] || npm install ) && npm test
 
-test-dna-debug: $(HAPP) FORCE
+test-dna-debug: build FORCE
 	@echo "Starting Scenario tests in $$(pwd)..."; \
 	    cd tests && ( [ -d  node_modules ] || npm install ) && npm run test-debug
 
@@ -73,10 +73,8 @@ alternate-happ-configs: $(DNA) FORCE
 
 update:
 	rm -f Cargo.lock
-	echo '⚙️  Updating hdk crate...'
-	cargo upgrade hdk@=$(shell jq .hdk ./version-manager.json) --workspace --pinned
-	echo '⚙️  Updating hdi crate...'
-	cargo upgrade hdi@=$(shell jq .hdi ./version-manager.json) --workspace --pinned
+	echo '⚙️  Updating hdk and hdi crate...'
+	cargo upgrade hdk@=$(shell jq .hdk ./version-manager.json) hdi@=$(shell jq .hdi ./version-manager.json) --workspace --pinned
 	echo '⚙️  Updating holonix...'
 	nix-shell --run "niv update"
 	echo '⚙️  Updating holochain_version in nix...'

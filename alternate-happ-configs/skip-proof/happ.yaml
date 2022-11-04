@@ -1,7 +1,7 @@
 ---
-manifest_version: "1"
+manifest_version: '1'
 name: test-dna
-description: ""
+description: ''
 roles:
   - id: test
     provisioning:
@@ -12,5 +12,6 @@ roles:
       modifiers:
         properties:
           skip_proof: true
+          dna_index: 88
         network_seed: ~
       clone_limit: 0

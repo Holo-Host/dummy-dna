@@ -1,17 +1,17 @@
 import {
-  Conductor,
-  HappBundleOptions,
-  Player,
-  Scenario
+	Conductor,
+	HappBundleOptions,
+	Player,
+	Scenario,
 } from '@holochain/tryorama'
-import { AppBundleSource, AppSignalCb } from "@holochain/client";
+import { AppBundleSource, AppSignalCb } from '@holochain/client'
 import * as msgpack from '@msgpack/msgpack'
-import path from 'path';
-import {fileURLToPath} from 'url'
+import path from 'path'
+import { fileURLToPath } from 'url'
 import { inspect } from 'util'
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 export const testHappPath = path.join(__dirname, '../../test.happ')
 
@@ -19,75 +19,79 @@ const SUCCESSFUL_JOINING_CODE = msgpack.encode('joining code')
 export const INVALID_JOINING_CODE = msgpack.encode('Failing Joining Code')
 
 type InstallAgentsArgs = {
-  scenario: Scenario,
-  number_of_agents: number,
-  memProof?: Uint8Array,
-  signalHandler?: any
+	scenario: Scenario
+	number_of_agents: number
+	memProof?: Uint8Array
+	signalHandler?: any
 }
 
-type PlayerHappBundleOptions = HappBundleOptions & { signalHandler?: AppSignalCb };
+type PlayerHappBundleOptions = HappBundleOptions & {
+	signalHandler?: AppSignalCb
+}
 
 export const installAgents = async ({
-  scenario,
-  number_of_agents,
-  memProof,
-  signalHandler
+	scenario,
+	number_of_agents,
+	memProof,
+	signalHandler,
 }: InstallAgentsArgs) => {
-  const happBundleOptions: PlayerHappBundleOptions = {
-    membraneProofs: {
-      test: Buffer.from(memProof ? memProof : SUCCESSFUL_JOINING_CODE),
-      test2: Buffer.from(memProof ? memProof : SUCCESSFUL_JOINING_CODE),
-    },
-    signalHandler: signalHandler ? signalHandler : (_: any) => {}
-  }
+	const happBundleOptions: PlayerHappBundleOptions = {
+		membraneProofs: {
+			test: Buffer.from(memProof ? memProof : SUCCESSFUL_JOINING_CODE),
+			test2: Buffer.from(memProof ? memProof : SUCCESSFUL_JOINING_CODE),
+		},
+		signalHandler: signalHandler ? signalHandler : (_: any) => {},
+	}
 
-  let playersHappBundles = []
+	let playersHappBundles = []
 
-  for (let i = 0; i < number_of_agents; i++) {
-    playersHappBundles.push({
-      appBundleSource: { path: testHappPath } as AppBundleSource,
-      options: happBundleOptions
-    })
-  }
+	for (let i = 0; i < number_of_agents; i++) {
+		playersHappBundles.push({
+			appBundleSource: { path: testHappPath } as AppBundleSource,
+			options: happBundleOptions,
+		})
+	}
 
-  let agents: Player[] = []  
+	let agents: Player[] = []
 
-  try {
-    agents = await scenario.addPlayersWithHappBundles(playersHappBundles)
-  } catch (e) {
-    console.error('Error installing agents', inspect(e))
-    throw e
-  }
+	try {
+		agents = await scenario.addPlayersWithHappBundles(playersHappBundles)
+	} catch (e) {
+		console.error('Error installing agents', inspect(e))
+		throw e
+	}
 
-  return agents
+	return agents
 }
 
 type InstallAgentsOnConductorArgs = {
-  conductor: Conductor,
-  number_of_agents: number,
-  memProof?: Uint8Array,
-  signalHandler?: any
+	conductor: Conductor
+	number_of_agents: number
+	memProof?: Uint8Array
+	signalHandler?: any
 }
 
 export const installAgentsOnConductor = async ({
-  conductor,
-  number_of_agents,
-  memProof
+	conductor,
+	number_of_agents,
+	memProof,
 }: InstallAgentsOnConductorArgs) => {
-  const appBundleSource: AppBundleSource = { path: testHappPath }
+	const appBundleSource: AppBundleSource = { path: testHappPath }
 
-  const happBundleOptions: HappBundleOptions = {
-    membraneProofs: {
-      test: Buffer.from(memProof ? memProof : SUCCESSFUL_JOINING_CODE),
-      test2: Buffer.from(memProof ? memProof : SUCCESSFUL_JOINING_CODE),
-    }
-  }
+	const happBundleOptions: HappBundleOptions = {
+		membraneProofs: {
+			test: Buffer.from(memProof ? memProof : SUCCESSFUL_JOINING_CODE),
+			test2: Buffer.from(memProof ? memProof : SUCCESSFUL_JOINING_CODE),
+		},
+	}
 
-  let agentHapps = []
+	let agentHapps = []
 
-  for (let i = 0; i < number_of_agents; i++) {
-    agentHapps.push(await conductor.installHappBundle(appBundleSource, happBundleOptions))
-  }
+	for (let i = 0; i < number_of_agents; i++) {
+		agentHapps.push(
+			await conductor.installHappBundle(appBundleSource, happBundleOptions)
+		)
+	}
 
-  return agentHapps
+	return agentHapps
 }
