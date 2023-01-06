@@ -1,9 +1,9 @@
 ---
 manifest_version: '1'
-name: test-dna
+name: test-happ
 description: ''
 roles:
-  - id: test
+  - name: test
     provisioning:
       strategy: create
       deferred: false
@@ -13,7 +13,7 @@ roles:
         properties: ~
         network_seed: ~
       clone_limit: 0
-  - id: test2
+  - name: test2
     provisioning:
       strategy: create
       deferred: false
