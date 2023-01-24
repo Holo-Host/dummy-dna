@@ -14,7 +14,7 @@ fn target() -> ExternResult<EntryHash> {
 }
 
 pub fn set_cap_tokens() -> ExternResult<()> {
-    let mut functions: GrantedFunctions = BTreeSet::new();
+    let mut functions = BTreeSet::new();
     functions.insert((zome_info()?.name, "returns_obj".into()));
     functions.insert((zome_info()?.name, "pass_obj".into()));
     functions.insert((zome_info()?.name, "return_failure".into()));
@@ -29,7 +29,7 @@ pub fn set_cap_tokens() -> ExternResult<()> {
     create_cap_grant(CapGrantEntry {
         tag: "".into(),
         access: ().into(),
-        functions,
+        functions: GrantedFunctions::Listed(functions),
     })?;
     Ok(())
 }
@@ -119,13 +119,13 @@ fn emit_signal_from_sibling_cell(payload: SiblingEmitPayload) -> ExternResult<()
 fn create_cap_grant_for_private_function(_: ()) -> ExternResult<CapSecret> {
     let cap_secret = generate_cap_secret()?;
 
-    let mut functions: GrantedFunctions = BTreeSet::new();
+    let mut functions = BTreeSet::new();
     functions.insert((zome_info()?.name, "private_function".into()));
 
     create_cap_grant(CapGrantEntry {
         tag: "".into(),
         access: cap_secret.into(),
-        functions,
+        functions: GrantedFunctions::Listed(functions),
     })?;
 
     Ok(cap_secret)
@@ -155,7 +155,7 @@ fn remote_call_private_function(input: RemoteCallPrivateInput) -> ExternResult<S
             Ok(r) => Ok(r),
             Err(e) => Err(wasm_error!(WasmErrorInner::Guest(e.to_string()))),
         },
-        ZomeCallResponse::Unauthorized(_, _, _, _) => Err(wasm_error!(WasmErrorInner::CallError(
+        ZomeCallResponse::Unauthorized(..) => Err(wasm_error!(WasmErrorInner::CallError(
             "Unauthorized call to private_function".to_string()
         ))),
         ZomeCallResponse::NetworkError(_) => Err(wasm_error!(WasmErrorInner::CallError(

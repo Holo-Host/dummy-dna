@@ -1,9 +1,4 @@
-import {
-	Conductor,
-	HappBundleOptions,
-	Player,
-	Scenario,
-} from '@holochain/tryorama'
+import { Conductor, AppOptions, Player, Scenario } from '@holochain/tryorama'
 import { AppBundleSource, AppSignalCb } from '@holochain/client'
 import * as msgpack from '@msgpack/msgpack'
 import path from 'path'
@@ -22,10 +17,9 @@ type InstallAgentsArgs = {
 	scenario: Scenario
 	number_of_agents: number
 	memProof?: Uint8Array
-	signalHandler?: any
 }
 
-type PlayerHappBundleOptions = HappBundleOptions & {
+type PlayerHappBundleOptions = AppOptions & {
 	signalHandler?: AppSignalCb
 }
 
@@ -33,14 +27,12 @@ export const installAgents = async ({
 	scenario,
 	number_of_agents,
 	memProof,
-	signalHandler,
 }: InstallAgentsArgs) => {
 	const happBundleOptions: PlayerHappBundleOptions = {
 		membraneProofs: {
 			test: Buffer.from(memProof ? memProof : SUCCESSFUL_JOINING_CODE),
 			test2: Buffer.from(memProof ? memProof : SUCCESSFUL_JOINING_CODE),
 		},
-		signalHandler: signalHandler ? signalHandler : (_: any) => {},
 	}
 
 	let playersHappBundles = []
@@ -55,7 +47,7 @@ export const installAgents = async ({
 	let agents: Player[] = []
 
 	try {
-		agents = await scenario.addPlayersWithHappBundles(playersHappBundles)
+		agents = await scenario.addPlayersWithApps(playersHappBundles)
 	} catch (e) {
 		console.error('Error installing agents', inspect(e))
 		throw e
@@ -78,7 +70,7 @@ export const installAgentsOnConductor = async ({
 }: InstallAgentsOnConductorArgs) => {
 	const appBundleSource: AppBundleSource = { path: testHappPath }
 
-	const happBundleOptions: HappBundleOptions = {
+	const happBundleOptions: AppOptions = {
 		membraneProofs: {
 			test: Buffer.from(memProof ? memProof : SUCCESSFUL_JOINING_CODE),
 			test2: Buffer.from(memProof ? memProof : SUCCESSFUL_JOINING_CODE),
@@ -86,11 +78,11 @@ export const installAgentsOnConductor = async ({
 	}
 
 	let agentHapps = []
-
+	await conductor.attachAppInterface()
 	for (let i = 0; i < number_of_agents; i++) {
-		agentHapps.push(
-			await conductor.installHappBundle(appBundleSource, happBundleOptions)
-		)
+		let app = await conductor.installApp(appBundleSource, happBundleOptions)
+		await conductor.connectAppAgentInterface(app.appId)
+		agentHapps.push(app)
 	}
 
 	return agentHapps

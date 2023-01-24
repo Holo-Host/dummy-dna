@@ -9,9 +9,12 @@ test('bridge call', async (t) => {
 		const [alicePlayer] = await installAgents({
 			scenario,
 			number_of_agents: 1,
-			signalHandler: (signal: any) => signals.push(signal),
 		})
-		const [cell1, cell2] = alicePlayer.cells
+		const [cell1, cell2]: any[] = alicePlayer.cells
+		const signalHandler = (signal: any) => {
+			signals.push(signal)
+		}
+		await alicePlayer.conductor.appWs().on('signal', signalHandler)
 
 		const payload = { value: 'moosetown' }
 		await cell1.callZome({
@@ -22,11 +25,9 @@ test('bridge call', async (t) => {
 
 		t.deepEqual(signals, [
 			{
-				type: 'Signal',
-				data: {
-					cellId: cell2.cell_id,
-					payload,
-				},
+				cell_id: cell2.cell_id,
+				zome_name: 'test',
+				payload,
 			},
 		])
 	})

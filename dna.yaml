@@ -1,6 +1,6 @@
 ---
 manifest_version: '1'
-name: test-dna
+name: test
 integrity:
   origin_time: 2022-09-06T07:00:00.470323Z
   network_seed: 00000000-0000-0000-0000-000000000000
