@@ -1,11 +1,11 @@
 # This file was generated with the following command:
-# update-holochain-versions --git-src=revision:holochain-0.1.0-beta-rc.2 --output-file=holochain_version.nix
+# update-holochain-versions --git-src=revision:holochain-0.1.0-beta-rc.4 --output-file=holochain_version.nix
 # For usage instructions please visit https://github.com/holochain/holochain-nixpkgs/#readme
 
 {
     url = "https://github.com/holochain/holochain";
-    rev = "holochain-0.1.0-beta-rc.2";
-    sha256 = "sha256-GbjO3YANNDnWR2g2LBkSAgzwfc6Lrji5T/8xg+lTTCw=";
+    rev = "holochain-0.1.0-beta-rc.4";
+    sha256 = "sha256-Rr66+kZf5GTnXlhyBfM3U0uXJU2k3l4xSMcH23x0Wz4=";
     cargoLock = {
         outputHashes = {
         };
@@ -53,8 +53,8 @@
 
     launcher = {
         url = "https://github.com/holochain/launcher";
-        rev = "holochain_cli_launch-0.0.4-alpha.1";
-        sha256 = "sha256-JoNQagflNiHBnA2g9iVWNjCtlC2x2sYMlNO7jhETprI=";
+        rev = "holochain_cli_launch-0.0.7";
+        sha256 = "sha256-1OajNhnld8P0NfNqYY7oRQV5+GUGLgUVuJ/QfwNLzH8=";
 
         binsFilter = [
             "hc-launch"
@@ -63,7 +63,7 @@
 
         cargoLock = {
             outputHashes = {
-                "holochain_client-0.2.0" = "sha256-zJGc2H+dGFz5/yd9ryG6q94qBhsLdrJBjuBahcRWtGE=";
+                "holochain_client-0.2.0" = "sha256-NwvDNJ36h5k/6TsuFuOuejCIIyRHAMD/NrTwPsC0k4M=";
             };
         };
     };
