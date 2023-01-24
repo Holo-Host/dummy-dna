@@ -12,7 +12,6 @@ test('basic cap grant', async (t) => {
 			conductor,
 			number_of_agents: 2,
 		});
-		console.log('>>>>>>>>>>>>', aliceHapp.cells);
 
 		const aliceCell = aliceHapp.cells.find((c) => c.name === 'test');
 		const bobCell = bobHapp.cells.find((c) => c.name === 'test');
