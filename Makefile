@@ -1,3 +1,35 @@
+#############################
+# █▀█ █▀▀ █░░ █▀▀ ▄▀█ █▀ █▀▀
+# █▀▄ ██▄ █▄▄ ██▄ █▀█ ▄█ ██▄ 
+#############################
+
+version:
+	@echo $(shell jq .version ./version-manager.json)
+
+# requirements
+# - cargo-edit crate: `cargo install cargo-edit`
+# - jq linux terminal tool : `sudo apt-get install jq`
+# How to make a release?
+# - Update the version-manage.json with the version to bump
+# - run `make update`: Updates the repo with the lib that are mentioned in version-manager.json
+# - when this is merged into `main` a release will be auto-deploy
+
+update:
+	rm -f Cargo.lock
+	echo '⚙️  Updating hdk and hdi crate...'
+	cargo upgrade hdk@=$(shell jq .hdk ./version-manager.json) hdi@=$(shell jq .hdi ./version-manager.json) --workspace --pinned
+	echo '⚙️  Updating holonix...'
+	nix-shell --run "niv update"
+	echo '⚙️  Updating holochain_version in nix...'
+	nix-shell --pure https://github.com/holochain/holochain-nixpkgs/archive/develop.tar.gz \
+		--arg flavors '["release"]' \
+		--run "update-holochain-versions --git-src=revision:$(shell jq .holochain_rev ./version-manager.json) --output-file=holochain_version.nix"
+	echo '⚙️  Building dnas and happ...'
+	rm -rf Cargo.lock
+	make nix-build
+	echo '⚙️  Running tests...'
+	make nix-test-dna-debug
+
 #
 # Test and build test Project
 #
@@ -60,32 +92,6 @@ alternate-happ-configs: $(DNA) FORCE
 	@for NAME in $(shell ls alternate-happ-configs); do \
 		hc app pack "alternate-happ-configs/$$NAME" -o "$(DNANAME)-$$NAME.happ"; \
 	done
-
-#############################
-# █▀█ █▀▀ █░░ █▀▀ ▄▀█ █▀ █▀▀
-# █▀▄ ██▄ █▄▄ ██▄ █▀█ ▄█ ██▄ | tap-diff
-#############################
-# requirements
-# - cargo-edit crate: `cargo install cargo-edit`
-# - jq linux terminal tool : `sudo apt-get install jq`
-# How to make a release?
-# make update
-
-update:
-	rm -f Cargo.lock
-	echo '⚙️  Updating hdk and hdi crate...'
-	cargo upgrade hdk@=$(shell jq .hdk ./version-manager.json) hdi@=$(shell jq .hdi ./version-manager.json) --workspace --pinned
-	echo '⚙️  Updating holonix...'
-	nix-shell --run "niv update"
-	echo '⚙️  Updating holochain_version in nix...'
-	nix-shell --pure https://github.com/holochain/holochain-nixpkgs/archive/develop.tar.gz \
-		--arg flavors '["release"]' \
-		--run "update-holochain-versions --git-src=revision:$(shell jq .holochain_rev ./version-manager.json) --output-file=holochain_version.nix"
-	echo '⚙️  Building dnas and happ...'
-	rm -rf Cargo.lock
-	make nix-build
-	echo '⚙️  Running tests...'
-	make nix-test-dna-debug
 
 # Generic targets; does not require a Nix environment
 .PHONY: clean

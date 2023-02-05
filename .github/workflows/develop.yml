@@ -1,0 +1,41 @@
+name: Develop
+
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+    - name: Fetch source code
+      uses: actions/checkout@v2
+    - name: Use Nix
+      uses: cachix/install-nix-action@v18
+      with:
+        install_url: https://releases.nixos.org/nix/nix-2.12.0/install
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Configure Nix substituters
+      run: |
+        set -xe
+        mkdir -p ~/.config/nix/
+        cp ./.github/nix.conf ~/.config/nix/
+    - name: Use cachix
+      uses: cachix/cachix-action@v10
+      with:
+        name: holochain-ci
+    - name: Prepare Nix environment
+      run: nix-shell --command "echo Completed"
+    - name: Run all tests
+      run: nix-shell --run 'make test'

@@ -1,13 +1,11 @@
-name: CI
+name: Main
 
 on:
   push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main, develop ]
+    branches: [main]
 
 jobs:
-  build:
+  release:
 
     runs-on: ubuntu-latest
 
@@ -37,5 +35,49 @@ jobs:
         name: holochain-ci
     - name: Prepare Nix environment
       run: nix-shell --command "echo Completed"
-    - name: Run all tests
-      run: nix-shell --run 'make test'
+    - name: Build
+      run: nix-shell --run 'make build'
+    - name: version
+      run: |
+        make version
+        VERSION=$(make version)
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+      id: version
+    - name: release
+      uses: actions/create-release@v1
+      id: create_release
+      with:
+        draft: false
+        prerelease: false
+        release_name: ${{ env.VERSION }}
+        tag_name: ${{ env.VERSION }}
+        body_path: version-manager.json
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+    - name: upload test.happ artifact
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./test.happ
+        asset_name: test.happ
+        asset_content_type: application/happ
+    - name: upload test.dna artifact
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./test.dna
+        asset_name: test.dna
+        asset_content_type: application/dna
+    - name: upload test-skip-proof.happ artifact
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./test.happ
+        asset_name: test-skip-proof.happ
+        asset_content_type: application/happ
