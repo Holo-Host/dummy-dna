@@ -12,7 +12,7 @@ roles:
       modifiers:
         properties: ~
         network_seed: ~
-      clone_limit: 0
+      clone_limit: 2
   - name: test2
     provisioning:
       strategy: create
