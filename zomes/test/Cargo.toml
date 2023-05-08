@@ -9,7 +9,7 @@ name = "test"
 crate-type = [ "cdylib", "rlib" ]
 
 [dependencies]
-hdk = "=0.1.0"
+hdk = "=0.2.0"
 serde = "1.0"
 thiserror = "1.0.22"
 paste = "1.0.5"
