@@ -67,7 +67,7 @@ rebuild:	clean build
 
 install:	build
 
-build: $(HAPP) alternate-happ-configs
+build: $(HAPP)
 
 
 $(HAPP): $(DNA) FORCE

@@ -18,6 +18,7 @@ pub enum LinkTypes {
 #[hdk_entry_helper]
 pub struct JoiningCode(pub String);
 
+#[derive(Clone)]
 #[hdk_entry_helper]
 pub struct TestObj {
     pub value: String,
@@ -27,4 +28,8 @@ pub struct TestObj {
 #[unit_enum(EntryTypesUnit)]
 pub enum EntryTypes {
     TestObj(TestObj),
+    #[entry_def(name = "private_entry", visibility = "private")] // Configure entry behaviour
+    PrivateEntry(TestObj),
 }
+
+
