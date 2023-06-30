@@ -3,6 +3,7 @@ import test from 'tape-promise/tape.js'
 import { runScenario, Scenario } from '@holochain/tryorama'
 import { Codec } from '@holo-host/cryptolib'
 import { installAgents } from './utils.js'
+import * as msgpack from '@msgpack/msgpack'
 
 test('basic app functions', async (t) => {
 	await runScenario(async (scenario: Scenario) => {
@@ -163,5 +164,47 @@ test('basic app functions', async (t) => {
 			console.error('Error: ', e)
 			t.fail()
 		}
+
+		// test fn: create_public_entry()
+		try {
+			const initialState = await alicePlayer.conductor.adminWs().dumpState({ cell_id: alice.cell_id } )
+			const publicEntryTestValue = { value: 'create_public_entry value' }
+			const publicActionHash = await alice.callZome({
+				zome_name: 'test',
+				fn_name: 'create_public_entry',
+				payload: publicEntryTestValue,
+			})
+			t.ok(publicActionHash)
+
+			const afterCreatePublicState = await alicePlayer.conductor.adminWs().dumpState({ cell_id: alice.cell_id } )
+			t.equal(afterCreatePublicState[0].source_chain_dump.records.length - initialState[0].source_chain_dump.records.length, 1)
+			const publicEntry = afterCreatePublicState[0].source_chain_dump.records[afterCreatePublicState[0].source_chain_dump.records.length -1].entry.entry
+			const decodedPublicEntry:any = msgpack.decode(publicEntry)
+			t.equal(decodedPublicEntry.value, publicEntryTestValue.value)
+		} catch (e) {
+			console.error('Error: ', e)
+			t.fail()
+		}
+		
+		// test fn: create_private_entry()
+		try {
+			const initialState = await alicePlayer.conductor.adminWs().dumpState({ cell_id: alice.cell_id } )
+			const privateEntryTestValue = { value: 'create_private_entry value' }
+			const privateActionHash = await alice.callZome({
+				zome_name: 'test',
+				fn_name: 'create_private_entry',
+				payload: privateEntryTestValue,
+			})
+			t.ok(privateActionHash)
+
+			const afterCreatePrivateState = await alicePlayer.conductor.adminWs().dumpState({ cell_id: alice.cell_id } )
+			t.equal(afterCreatePrivateState[0].source_chain_dump.records.length - initialState[0].source_chain_dump.records.length, 1)
+			const privateEntry = afterCreatePrivateState[0].source_chain_dump.records[afterCreatePrivateState[0].source_chain_dump.records.length -1].entry.entry
+			const decodedPrivateEntry:any = msgpack.decode(privateEntry)
+			t.equal(decodedPrivateEntry.value, privateEntryTestValue.value)
+		} catch (e) {
+			console.error('Error: ', e)
+			t.fail()
+		}		
 	})
 })
