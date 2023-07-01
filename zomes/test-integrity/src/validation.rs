@@ -10,7 +10,7 @@ pub struct Props {
 /// Checking properties for `not_editable_profile` flag
 pub fn is_skipped() -> bool {
     if let Ok(info) = dna_info() {
-        return is_skipped_sb(&info.properties);
+        return is_skipped_sb(&info.modifiers.properties);
     }
     false
 }
