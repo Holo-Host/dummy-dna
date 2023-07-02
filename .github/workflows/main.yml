@@ -1,4 +1,4 @@
-name: Main
+name: Main CI and CD
 
 on:
   push:
@@ -14,26 +14,35 @@ jobs:
 
     steps:
       - name: Fetch source code
-        uses: actions/checkout@v2
-      - name: Use Nix
-        uses: cachix/install-nix-action@v18
+        uses: actions/checkout@v3
+
+      - name: Install nix
+        uses: cachix/install-nix-action@v22
+
+      - name: Set up cachix
+        uses: cachix/cachix-action@v12
         with:
-          install_url: https://releases.nixos.org/nix/nix-2.12.0/install
+          name: holochain-ci
+
+      - name: Build Nix packages
+        run: nix develop -c $SHELL -c "echo Nix packages built"
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Configure Nix substituters
-        run: |
-          set -xe
-          mkdir -p ~/.config/nix/
-          cp ./.github/nix.conf ~/.config/nix/
-      - name: Use cachix
-        uses: cachix/cachix-action@v10
+
+      - name: Restore zome build
+        uses: actions/cache/restore@v3
         with:
-          name: holochain-ci
-      - name: Build
+          path: |
+            .cargo
+            target
+          key: ${{ runner.os }}-build-happ-${{ hashFiles('Cargo.lock') }}
+
+      - name: 🔎 Build happ
         run: make nix-build
+
       - name: version
         run: |
           make version
