@@ -1,13 +1,11 @@
 {
-  description = "Template for Holochain app development";
-    # this can now be udpated directly, e.g.:
-    # nix flake lock --override-input holochain github:holochain/holochain/holochain-0.1.3
-
   inputs = {
-    holonix.url = "github:holochain/holochain";
-    holonix.inputs.holochain.url = "github:holochain/holochain/holochain-0.3.0-beta-dev.6";
-    holonix.inputs.lair.url = "github:holochain/lair/lair_keystore-v0.2.4";
     nixpkgs.follows = "holonix/nixpkgs";
+
+    versions.url = "github:holochain/holochain?dir=versions/0_2";
+    holonix.url = "github:holochain/holochain";
+    holonix.inputs.versions.follows = "versions";
+    holonix.inputs.holochain.url = "github:holochain/holochain/holochain-0.3.0-beta-dev.6";
   };
 
   outputs = inputs@{ holonix, ... }:
@@ -18,10 +16,10 @@
       perSystem = { config, system, pkgs, ... }:
         {
           devShells.default = pkgs.mkShell {
-            inputsFrom = [ holonix.devShells.${system}.holonix ];
+            inputsFrom = [ holonix.devShells.${system}.holochainBinaries ];
             packages = with pkgs; [
               # add further packages from nixpkgs
-              nodejs binaryen 
+              nodejs binaryen
             ];
           };
         };
