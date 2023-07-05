@@ -31,5 +31,3 @@ pub enum EntryTypes {
     #[entry_def(name = "private_entry", visibility = "private")]
     PrivateEntry(TestObj),
 }
-
-
