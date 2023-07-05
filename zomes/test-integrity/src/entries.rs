@@ -28,7 +28,7 @@ pub struct TestObj {
 #[unit_enum(EntryTypesUnit)]
 pub enum EntryTypes {
     TestObj(TestObj),
-    #[entry_def(name = "private_entry", visibility = "private")] // Configure entry behaviour
+    #[entry_def(name = "private_entry", visibility = "private")]
     PrivateEntry(TestObj),
 }
 
