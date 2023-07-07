@@ -95,6 +95,18 @@ fn delete_all_links(_: ()) -> ExternResult<()> {
 }
 
 #[hdk_extern]
+fn create_public_entry(entry: TestObj) -> ExternResult<ActionHash> {
+    let create_hash = create_entry(&EntryTypes::TestObj(entry.clone()))?;
+    Ok(create_hash)
+}
+
+#[hdk_extern]
+fn create_private_entry(entry: TestObj) -> ExternResult<ActionHash> {
+    let create_hash = create_entry(&EntryTypes::PrivateEntry(entry.clone()))?;
+    Ok(create_hash)
+}
+
+#[hdk_extern]
 fn signal_loopback(value: LoopBack) -> ExternResult<()> {
     emit_signal(&value)?;
     Ok(())
