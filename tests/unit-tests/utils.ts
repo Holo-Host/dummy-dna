@@ -1,4 +1,4 @@
-import { Conductor, AppOptions, Player, Scenario } from '@holochain/tryorama'
+import { Conductor, AppOptions, Player, Scenario, enableAndGetAgentApp } from '@holochain/tryorama'
 import { AppBundleSource, AppSignalCb } from '@holochain/client'
 import * as msgpack from '@msgpack/msgpack'
 import path from 'path'
@@ -80,8 +80,11 @@ export const installAgentsOnConductor = async ({
 	let agentHapps = []
 	await conductor.attachAppInterface()
 	for (let i = 0; i < number_of_agents; i++) {
-		let app = await conductor.installApp(appBundleSource, happBundleOptions)
-		await conductor.connectAppAgentInterface(app.appId)
+		let appInfo = await conductor.installApp(appBundleSource, happBundleOptions)
+		const adminWs = conductor.adminWs()
+		const port = await conductor.attachAppInterface()
+		const appAgentWs = await conductor.connectAppAgentWs(port, appInfo.installed_app_id)
+		let app = await enableAndGetAgentApp(adminWs, appAgentWs, appInfo)
 		agentHapps.push(app)
 	}
 

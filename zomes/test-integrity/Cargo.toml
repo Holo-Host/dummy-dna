@@ -1,6 +1,6 @@
 [package]
 name = "test_integrity"
-version = "0.1.0"
+version = "0.1.1"
 authors = [ "zo-el <joelulahanna@gmail.com>", "jetttech <lisa.jetton@holo.host>" ]
 edition = "2021"
 
@@ -10,4 +10,4 @@ crate-type = [ "cdylib", "rlib" ]
 
 [dependencies]
 serde = "1.0"
-hdi = "=0.4.0-beta-dev.4"
+hdi = "=0.3.2-beta-rc.0"
