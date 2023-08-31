@@ -14,7 +14,9 @@ test('bridge call', async (t) => {
 		const signalHandler = (signal: any) => {
 			signals.push(signal)
 		}
-		await alicePlayer.conductor.appWs().on('signal', signalHandler)
+		const port = await alicePlayer.conductor.attachAppInterface()
+		const appWs = await alicePlayer.conductor.connectAppWs(port)
+		appWs.on('signal', signalHandler)
 
 		const payload = { value: 'moosetown' }
 		await cell1.callZome({
