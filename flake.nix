@@ -1,26 +1,36 @@
 {
+  description = "Template for Holochain app development";
+
   inputs = {
-    nixpkgs.follows = "holochain/nixpkgs";
-    holochain = {
-      url = "github:holochain/holochain";
-      inputs.versions.url = "github:holochain/holochain?dir=versions/0_2";
-      inputs.holochain.url = "github:holochain/holochain/holochain-0.2.2-beta-rc.0";
-    };
+    versions.url = "github:holochain/holochain?dir=versions/0_2";
+ 
+    holochain-flake.url = "github:holochain/holochain";
+    holochain-flake.inputs.versions.follows = "versions";
+
+    nixpkgs.follows = "holochain-flake/nixpkgs";
+    flake-parts.follows = "holochain-flake/flake-parts";
   };
 
-  outputs = inputs @ { ... }:
-    inputs.holochain.inputs.flake-parts.lib.mkFlake { inherit inputs; }
+  outputs = inputs:
+    inputs.flake-parts.lib.mkFlake { inherit inputs; }
       {
-        systems = builtins.attrNames inputs.holochain.devShells;
+        systems = builtins.attrNames inputs.holochain-flake.devShells;
+
         perSystem =
-          { config
+          { inputs'
+          , config
           , pkgs
           , system
           , ...
           }: {
+
             devShells.default = pkgs.mkShell {
-              inputsFrom = [ inputs.holochain.devShells.${system}.holonix ];
-              packages = [ pkgs.nodejs-18_x pkgs.binaryen  ];
+              inputsFrom = [ inputs'.holochain-flake.devShells.holonix ];
+              packages = [
+                pkgs.nodejs-18_x
+                pkgs.binaryen
+                # more packages go here
+              ];
             };
           };
       };

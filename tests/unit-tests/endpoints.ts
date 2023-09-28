@@ -48,14 +48,7 @@ test('basic app functions', async (t) => {
 			})
 		} catch (e) {
 			console.log('return_failure response:', e)
-			t.deepEqual(e, {
-				type: 'error',
-				data: {
-					type: 'ribosome_error',
-					data: 'Wasm runtime error while working with Ribosome: RuntimeError: WasmError { file: "zomes/test/src/lib.rs", line: 62, error: Deserialize([192]) }',
-				},
-			})
-			t.pass()
+			t.true(JSON.stringify(e).includes("Deserialize([192])"))
 		}
 
 		let link_hash_1, link_hash_2, link_hash_3

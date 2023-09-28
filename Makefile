@@ -18,7 +18,7 @@ version:
 update:
 	rm -f Cargo.lock
 	echo '⚙️  Updating hdk and hdi crate...'
-	cargo upgrade hdk@=$(shell jq .hdk ./version-manager.json) hdi@=$(shell jq .hdi ./version-manager.json) --workspace --pinned
+	cargo upgrade -p hdk@=$(shell jq .hdk ./version-manager.json) -p hdi@=$(shell jq .hdi ./version-manager.json) --pinned
 	echo '⚙️  Updating holochain_version in nix...'
 	# nix flake lock --override-input holochain github:holochain/holochain/$(HOLOCHAIN_REV)
 	echo '⚙️  Building dnas and happ...'

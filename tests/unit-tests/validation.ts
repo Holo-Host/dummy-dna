@@ -12,7 +12,7 @@ test('bad membrane proof', async (t) => {
 			})
 			t.fail('App installation passed genesis with an invalid proof.')
 		} catch (e) {
-			t.true(e.message.includes('Joining code invalid: passed failing string'))
+			t.true(JSON.stringify(e).includes('Joining code invalid: passed failing string'))
 		}
 	})
 })
