@@ -9,7 +9,7 @@ name = "test"
 crate-type = [ "cdylib", "rlib" ]
 
 [dependencies]
-hdk = "=0.2.2"
+hdk = "=0.2.4-rc.0"
 serde = "1.0"
 thiserror = "1.0.22"
 test_integrity ={ path = "../test-integrity" }
