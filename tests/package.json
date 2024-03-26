@@ -14,7 +14,7 @@
 	"license": "ISC",
 	"dependencies": {
 		"@holo-host/cryptolib": "^0.3.2",
-		"@holochain/tryorama": "0.15.0",
+		"@holochain/tryorama": "0.16.0-dev.1",
 		"@msgpack/msgpack": "^2.8",
 		"tap-diff": "^0.1.1",
 		"tape": "^5.5.3",
