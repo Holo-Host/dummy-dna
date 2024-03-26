@@ -3,9 +3,16 @@ members = [
   "zomes/test",
   "zomes/test-integrity"
 ]
+resolver = "2"
 
 [profile.dev]
 opt-level = "z"
 
 [profile.release]
 opt-level = "z"
+
+
+[workspace.dependencies]
+hdi = "=0.4.0-beta-dev.31"
+hdk = "=0.3.0-beta-dev.35"
+serde = "1"

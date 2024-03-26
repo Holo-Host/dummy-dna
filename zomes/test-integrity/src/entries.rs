@@ -24,10 +24,10 @@ pub struct TestObj {
     pub value: String,
 }
 
-#[hdk_entry_defs]
+#[hdk_entry_types]
 #[unit_enum(EntryTypesUnit)]
 pub enum EntryTypes {
     TestObj(TestObj),
-    #[entry_def(name = "private_entry", visibility = "private")]
+    #[entry_type(name = "private_entry", visibility = "private")]
     PrivateEntry(TestObj),
 }

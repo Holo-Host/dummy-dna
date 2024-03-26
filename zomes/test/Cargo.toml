@@ -1,6 +1,6 @@
 [package]
 name = "test"
-version = "0.5.1"
+version = "0.7.0"
 authors = [ "zo-el <joelulahanna@gmail.com>", "jetttech <lisa.jetton@holo.host>" ]
 edition = "2021"
 
@@ -9,7 +9,7 @@ name = "test"
 crate-type = [ "cdylib", "rlib" ]
 
 [dependencies]
-hdk = "=0.2.4-rc.0"
-serde = "1.0"
+hdk = { workspace = true }
+serde = { workspace = true }
 thiserror = "1.0.22"
 test_integrity ={ path = "../test-integrity" }
