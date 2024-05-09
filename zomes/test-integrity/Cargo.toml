@@ -9,5 +9,5 @@ name = "test_integrity"
 crate-type = [ "cdylib", "rlib" ]
 
 [dependencies]
-serde = "1.0"
-hdi = "=0.3.4-rc.0"
+hdi = { workspace = true }
+serde = { workspace = true }
