@@ -83,13 +83,13 @@ fn delete_link(input: ActionHash) -> ExternResult<ActionHash> {
 
 #[hdk_extern]
 fn get_links(_: ()) -> ExternResult<Vec<Link>> {
-    let input = GetLinksInputBuilder::try_new(base()?,..)?.build();
+    let input = GetLinksInputBuilder::try_new(base()?, ..)?.build();
     Ok(hdk::prelude::get_links(input)?)
 }
 
 #[hdk_extern]
 fn delete_all_links(_: ()) -> ExternResult<()> {
-    let input = GetLinksInputBuilder::try_new(base()?,..)?.build();
+    let input = GetLinksInputBuilder::try_new(base()?, ..)?.build();
     for link in hdk::prelude::get_links(input)? {
         hdk::prelude::delete_link(link.create_link_hash)?;
     }
