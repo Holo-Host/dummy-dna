@@ -15,7 +15,11 @@ test('bridge call', async (t) => {
 			signals.push(signal)
 		}
 		const port = await alicePlayer.conductor.attachAppInterface()
-		const appWs = await alicePlayer.conductor.connectAppWs(port)
+		const adminWs = alicePlayer.conductor.adminWs()
+		const issued1 = await adminWs.issueAppAuthenticationToken({
+			installed_app_id: alicePlayer.appId,
+		});
+		const appWs = await alicePlayer.conductor.connectAppWs(issued1.token, port)
 		appWs.on('signal', signalHandler)
 
 		const payload = { value: 'moosetown' }

@@ -2,11 +2,11 @@
   description = "Template for Holochain app development";
 
   inputs = {
-    holochain-nix-versions.url  = "github:holochain/holochain/?dir=versions/weekly";
-    holochain-flake = {
-      url = "github:holochain/holochain";
-      inputs.versions.follows = "holochain-nix-versions";
-    };
+    versions.url = "github:holochain/holochain?dir=versions/0_3_rc";
+    versions.inputs.holochain.url = "github:holochain/holochain/holochain-0.4.0-dev.2";
+
+    holochain-flake.url = "github:holochain/holochain";
+    holochain-flake.inputs.versions.follows = "versions";
 
     nixpkgs.follows = "holochain-flake/nixpkgs";
     flake-parts.follows = "holochain-flake/flake-parts";
@@ -28,7 +28,7 @@
             devShells.default = pkgs.mkShell {
               inputsFrom = [ inputs'.holochain-flake.devShells.holonix ];
               packages = [
-                pkgs.nodejs-18_x
+                pkgs.nodejs_20
                 pkgs.binaryen
                 # more packages go here
               ];

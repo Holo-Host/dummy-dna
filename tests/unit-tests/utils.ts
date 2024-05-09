@@ -83,7 +83,10 @@ export const installAgentsOnConductor = async ({
 		let appInfo = await conductor.installApp(appBundleSource, happBundleOptions)
 		const adminWs = conductor.adminWs()
 		const port = await conductor.attachAppInterface()
-		const appAgentWs = await conductor.connectAppAgentWs(port, appInfo.installed_app_id)
+		const issued1 = await adminWs.issueAppAuthenticationToken({
+			installed_app_id: appInfo.installed_app_id,
+		});
+		const appAgentWs = await conductor.connectAppWs(issued1.token, port)
 		let app = await enableAndGetAgentApp(adminWs, appAgentWs, appInfo)
 		agentHapps.push(app)
 	}
