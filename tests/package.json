@@ -4,8 +4,8 @@
 	"main": "index.js",
 	"type": "module",
 	"scripts": {
-		"test": "TRYORAMA_LOG_LEVEL=error RUST_BACKTRACE=1 node --loader ts-node/esm unit-tests/index.ts | tap-diff",
-		"test-debug": "TRYORAMA_LOG_LEVEL=debug node --loader ts-node/esm unit-tests/index.ts"
+		"test": "TRYORAMA_LOG_LEVEL=error RUST_BACKTRACE=1 tsx unit-tests/index.ts | tap-diff",
+		"test-debug": "TRYORAMA_LOG_LEVEL=debug tsx unit-tests/index.ts"
 	},
 	"authors": [
 		"zo-el<joelulahanna@gmail.com>",
@@ -20,6 +20,7 @@
 		"tape": "^5.7.5",
 		"tape-promise": "^4.0.0",
 		"ts-node": "^10.9.1",
+		"tsx": "^4.0.0",
 		"typescript": "^4.9.4",
 		"@types/tape": "^4.13.2",
 		"@types/tape-promise": "^4.0.1"

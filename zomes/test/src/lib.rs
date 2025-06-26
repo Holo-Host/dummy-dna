@@ -10,7 +10,7 @@ fn base() -> ExternResult<EntryHash> {
 }
 
 fn target() -> ExternResult<EntryHash> {
-    Ok(agent_info()?.agent_latest_pubkey.into())
+    Ok(agent_info()?.agent_initial_pubkey.into())
 }
 
 pub fn set_cap_tokens() -> ExternResult<()> {
@@ -177,6 +177,9 @@ fn remote_call_private_function(input: RemoteCallPrivateInput) -> ExternResult<S
         ))),
         ZomeCallResponse::CountersigningSession(_) => Err(wasm_error!(WasmErrorInner::CallError(
             "Unexpected CountersigningSession while calling private_function".to_string()
+        ))),
+        ZomeCallResponse::AuthenticationFailed(_, _) => Err(wasm_error!(WasmErrorInner::CallError(
+            "Authentication failed while calling private_function".to_string()
         ))),
     }
 }
