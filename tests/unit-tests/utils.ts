@@ -1,5 +1,5 @@
 import { Conductor, AppOptions, Player, Scenario, enableAndGetAgentApp } from '@holochain/tryorama'
-import { AppBundleSource, AppSignalCb } from '@holochain/client'
+import { AppBundleSource, AppSignal } from '@holochain/client'
 import * as msgpack from '@msgpack/msgpack'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -20,7 +20,7 @@ type InstallAgentsArgs = {
 }
 
 type PlayerHappBundleOptions = AppOptions & {
-	signalHandler?: AppSignalCb
+	signalHandler?: AppSignal
 }
 
 export const installAgents = async ({
@@ -28,19 +28,30 @@ export const installAgents = async ({
 	number_of_agents,
 	memProof,
 }: InstallAgentsArgs) => {
-	const happBundleOptions: PlayerHappBundleOptions = {
-		membraneProofs: {
-			test: Buffer.from(memProof ? memProof : SUCCESSFUL_JOINING_CODE),
-			test2: Buffer.from(memProof ? memProof : SUCCESSFUL_JOINING_CODE),
-		},
-	}
+	const happBundleOptions: PlayerHappBundleOptions = {}
 
 	let playersHappBundles = []
 
 	for (let i = 0; i < number_of_agents; i++) {
 		playersHappBundles.push({
-			appBundleSource: { path: testHappPath } as AppBundleSource,
-			options: happBundleOptions,
+			appBundleSource: { type: "path", value: testHappPath },
+			options: {
+				...happBundleOptions,
+				rolesSettings: {
+					test: {
+						type: "provisioned",
+						value: {
+							membrane_proof: memProof ? memProof : SUCCESSFUL_JOINING_CODE,
+						},
+					},
+					test2: {
+						type: "provisioned",
+						value: {
+							membrane_proof: memProof ? memProof : SUCCESSFUL_JOINING_CODE,
+						},
+					},
+				},
+			},
 		})
 	}
 
@@ -68,12 +79,22 @@ export const installAgentsOnConductor = async ({
 	number_of_agents,
 	memProof,
 }: InstallAgentsOnConductorArgs) => {
-	const appBundleSource: AppBundleSource = { path: testHappPath }
+	const appBundleSource: AppBundleSource = { type: "path", value: testHappPath }
 
 	const happBundleOptions: AppOptions = {
-		membraneProofs: {
-			test: Buffer.from(memProof ? memProof : SUCCESSFUL_JOINING_CODE),
-			test2: Buffer.from(memProof ? memProof : SUCCESSFUL_JOINING_CODE),
+		rolesSettings: {
+			test: {
+				type: "provisioned",
+				value: {
+					membrane_proof: memProof ? memProof : SUCCESSFUL_JOINING_CODE,
+				},
+			},
+			test2: {
+				type: "provisioned",
+				value: {
+					membrane_proof: memProof ? memProof : SUCCESSFUL_JOINING_CODE,
+				},
+			},
 		},
 	}
 

@@ -13,3 +13,4 @@ hdk = { workspace = true }
 serde = { workspace = true }
 thiserror = "1.0.22"
 test_integrity ={ path = "../test-integrity" }
+holochain_serialized_bytes = { workspace = true }

@@ -8,7 +8,8 @@ const __dirname = path.dirname(__filename)
 test('test properties set in happ build', async (t) => {
 	await runScenario(async (scenario: Scenario) => {
 		const alicePlayer = await scenario.addPlayerWithApp({
-			path: path.join(__dirname, '../../test-skip-proof.happ'),
+			type: "path",
+			value: path.join(__dirname, '../../test-skip-proof.happ')
 		})
 
 		const [cell1, cell2] = alicePlayer.cells

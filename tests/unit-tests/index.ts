@@ -1,4 +1,4 @@
-import './endpoints.js'
-import './validation.js'
-import './bridge-call.js'
-import './build-test.js'
+import './endpoints.ts'
+import './validation.ts'
+import './bridge-call.ts'
+import './build-test.ts'

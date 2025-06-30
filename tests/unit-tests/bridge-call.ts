@@ -29,11 +29,17 @@ test('bridge call', async (t) => {
 			payload: { sibling: cell2.cell_id, ...payload },
 		})
 
+		// Wait a bit for the signal to be processed
+		await new Promise(resolve => setTimeout(resolve, 100))
+
 		t.deepEqual(signals, [
 			{
-				cell_id: cell2.cell_id,
-				zome_name: 'test',
-				payload,
+				type: 'app',
+				value: {
+					cell_id: cell2.cell_id,
+					zome_name: 'test',
+					payload,
+				},
 			},
 		])
 	})

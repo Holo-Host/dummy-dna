@@ -13,6 +13,7 @@ opt-level = "z"
 
 
 [workspace.dependencies]
-hdi = "=0.6.2"
-hdk = "=0.5.2"
+hdi = "=0.6.3"
+hdk = "=0.5.3"
 serde = "1"
+holochain_serialized_bytes = "*"
